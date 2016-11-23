@@ -3,6 +3,7 @@
 const config = require('./server/init/configuration');
 const armclient = require('armclient');
 const log = require('kth-node-log');
+const logstash = require('./logstash');
 
 const client = armclient({
   subscriptionId: config.full.subscriptionId,
@@ -52,16 +53,21 @@ function getLogEntries(server) {
     client.provider(config.full.resourceGroup, 'Microsoft.OperationalInsights')
         .post('/workspaces/' + config.full.workspace + '/search', { 'api-version': '2015-03-20' }, apiQuery)
         .then(function(res) {
-            var logs = res.body.value;
-            console.log(logs.length);
-            return logs;
+            return res.body.value;
         })
-        .then(function(logs) {
-            for (var i = 0; i < logs.length; i++) {
-                console.log(logs[i]);
-            }
+        .then(function(entries) {
+            return Promise.all(entries.map(function (entry) {
+                logstash.forward(entry);
+                return entry;
+          }))
+        })
+        .then(function(entries) {
+            return Promise.all(entries.map(function (entry) {
+                console.log(entry);
+                return entry;
+            }))
         })
         .catch((err) => {
-            log.error("Failed to retrieve log entries: %s", err.details.error.message);
+            log.error("Failed to retrieve log entries: %s", err)
         })
 }

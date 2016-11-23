@@ -1,13 +1,6 @@
-.DS_Store
-
-# Settings
 config/localSettings.js
-
-# Logs
 *.log
-
-# Dependency directory for NPM
+*.crt
+*~
 node_modules/*
-
-# Docker
 environment

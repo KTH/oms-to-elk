@@ -5,7 +5,7 @@ OMS_SAVED_QUERY group|name of query
 OMS_LOG_QUERY_SCHEDULE */10 * * * * *
 OMS_SAVED_SEARCH_SCHEDULE */10 * * * *
 OMS_QUERY_BATCH_SIZE 100
-LOGSTASH_SERVER_URL 'logstash://localhost:9300'
+LOGSTASH_SERVER_URL 'logstash://localhost:5000'
 LOGSTASH_CERT_PATH '/some/path.crt'
 OMS_ELK_TENANTID xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 OMS_ELK_CLIENTID xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
