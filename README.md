@@ -26,3 +26,13 @@ run with docker run as in this example. There is a template available in environ
 ```
 docker run --env-file=environment kthse/oms-to-elk:latest
 ```
+
+## Development
+
+### Running an ELK docker container
+
+In the `elk` folder there is a helper script and configuration to run a docker
+image with  logstash and json codec enabled on input for development.
+
+The helper scripts uses a volume mount to map the logstash configuration file
+into the container and opens the logstash port, 5000.
