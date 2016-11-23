@@ -1,14 +1,15 @@
 'use strict';
 
 const config = require('./server/init/configuration');
-const tokens = require('/Users/fjo/.azure/accessTokens.json');
 const armclient = require('armclient');
 const log = require('kth-node-log');
 
-const client = armclient({  
+const client = armclient({
   subscriptionId: config.full.subscriptionId,
-  auth: armclient.tokenCredentials({
-    accessToken: tokens[0].accessToken
+  auth: armclient.clientCredentials({
+    tenantId: config.full.tenantId,
+    clientId: config.full.clientId,
+    clientSecret: config.full.clientKey
   })
 });
 
@@ -37,11 +38,12 @@ function getSavedQuery(server) {
  */
 function getLogEntries(server) {
     var query = server.query;
-    
+
     if (! query) {
         log.warn("Query not initialized yet.");
         return;
-    } 
+    }
+
     var apiQuery = {
         top: config.full.batchSize,
         Query: query
