@@ -5,6 +5,7 @@ const server = require('./server/server');
 const schedule = require('node-schedule');
 const log = require('kth-node-log');
 const oms = require('./oms');
+const logstash = require('./logstash');
 
 server.init();
 server.start();

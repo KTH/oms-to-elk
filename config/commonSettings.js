@@ -29,5 +29,10 @@ module.exports = {
   savedSearch: getEnv('OMS_SAVED_QUERY', 'elk|BunyanWarn'),
   logQuerySchedule: getEnv('OMS_LOG_QUERY_SCHEDULE', '*/10 * * * * *'),
   savedSearchSchedule: getEnv('OMS_SAVED_SEARCH_SCHEDULE', '*/10 * * * *'),
-  batchSize: getEnv('OMS_QUERY_BATCH_SIZE', 100)
+  batchSize: getEnv('OMS_QUERY_BATCH_SIZE', 100),
+  logstashServer: getEnv('LOGSTASH_SERVER_URL', 'logstash://localhost:9300'),
+  logstashCertificatePath: getEnv('LOGSTASH_CERT_PATH', './logstash.crt'),
+  tenantId: getEnv('OMS_ELK_TENANTID'),
+  clientId: getEnv('OMS_ELK_CLIENTID'),
+  clientKey: getEnv('OMS_ELK_CLIENTKEY')
 };
