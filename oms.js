@@ -20,12 +20,12 @@ module.exports = {
 function getSavedQuery(server) {
     client.provider(config.full.resourceGroup, 'Microsoft.OperationalInsights')
       .get('/workspaces/' + config.full.workspace + '/savedSearches/' + config.full.savedSearch, { 'api-version': '2015-03-20' })
-      .then((res) => {
+      .then(function(res) {
         server.query = res.body.properties.Query;
         log.debug("Got query from OMS: '%s'", server.query);
       })
       .catch((err) => {
-        log.error("Unable to get search string for saved query '%s' in OMS: %s", config.full.savedSearch, err);
+        log.error("Unable to get search string for saved query '%s' in OMS: %s", config.full.savedSearch, err.details.error.message);
     });
 }
 
@@ -34,20 +34,24 @@ function getLogEntries(server) {
     
     if (query) {
         var apiQuery = {
-            top: 150,
+            top: config.full.batchSize,
             Query: query
         };
 
         client.provider(config.full.resourceGroup, 'Microsoft.OperationalInsights')
           .post('/workspaces/' + config.full.workspace + '/search', { 'api-version': '2015-03-20' }, apiQuery)
-          .then((res) => {
+          .then(function(res) {
             var logs = res.body.value;
-            for (var i = 0; i < logs.length; i++) {
-                console.log(logs[i].__metadata.TimeGenerated);
-            }
+            console.log(logs.length);
+            return logs;
+          })
+          .then(function(logs) {
+              for (var i = 0; i < logs.length; i++) {
+                  console.log(logs[i]);
+              }
           })
           .catch((err) => {
-            log.error(err);
+            log.error("Failed to retrieve log entries: %s", err.details.error.message);
           });
     } else {
         log.warn("Query not initialized yet.");

@@ -26,7 +26,8 @@ module.exports = {
   subscriptionId: getEnv('AZURE_SUBSCRIPTION_ID', '2c39d62f-c399-4518-a841-4c1952136db5'),
   resourceGroup: getEnv('AZURE_RESOURCE_GROUP', 'UF-ITA-INTEGRATION'),
   workspace: getEnv('OMS_WORKSPACE', 'kth-integral'),
-  savedSearch: getEnv('OMS_SAVED_QUERY', 'svärm|alla bunyan'),
+  savedSearch: getEnv('OMS_SAVED_QUERY', 'elk|BunyanWarn'),
   logQuerySchedule: getEnv('OMS_LOG_QUERY_SCHEDULE', '*/10 * * * * *'),
-  savedSearchSchedule: getEnv('OMS_SAVED_SEARCH_SCHEDULE', '*/10 * * * *')
-}
+  savedSearchSchedule: getEnv('OMS_SAVED_SEARCH_SCHEDULE', '*/10 * * * *'),
+  batchSize: getEnv('OMS_QUERY_BATCH_SIZE', 100)
+};

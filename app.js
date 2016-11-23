@@ -4,14 +4,12 @@ const config = require('./server/init/configuration');
 const server = require('./server/server');
 const schedule = require('node-schedule');
 const log = require('kth-node-log');
-
 const oms = require('./oms');
-
-log.info("Node env %s", process.env.NODE_ENV);
 
 server.init();
 server.start();
 
+// Initialize.
 oms.getSavedQuery(server);
 
 /*
