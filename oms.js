@@ -17,6 +17,9 @@ module.exports = {
     getLogEntries: getLogEntries
 }
 
+/*
+ * Fetch the query string for a saved query and store it in the server.
+ */
 function getSavedQuery(server) {
     client.provider(config.full.resourceGroup, 'Microsoft.OperationalInsights')
       .get('/workspaces/' + config.full.workspace + '/savedSearches/' + config.full.savedSearch, { 'api-version': '2015-03-20' })
@@ -29,31 +32,34 @@ function getSavedQuery(server) {
     });
 }
 
+/*
+ * Fetch the log entries matching query stored in server.
+ */
 function getLogEntries(server) {
     var query = server.query;
     
-    if (query) {
-        var apiQuery = {
-            top: config.full.batchSize,
-            Query: query
-        };
+    if (! query) {
+        log.warn("Query not initialized yet.");
+        return;
+    } 
+    var apiQuery = {
+        top: config.full.batchSize,
+        Query: query
+    };
 
-        client.provider(config.full.resourceGroup, 'Microsoft.OperationalInsights')
-          .post('/workspaces/' + config.full.workspace + '/search', { 'api-version': '2015-03-20' }, apiQuery)
-          .then(function(res) {
+    client.provider(config.full.resourceGroup, 'Microsoft.OperationalInsights')
+        .post('/workspaces/' + config.full.workspace + '/search', { 'api-version': '2015-03-20' }, apiQuery)
+        .then(function(res) {
             var logs = res.body.value;
             console.log(logs.length);
             return logs;
-          })
-          .then(function(logs) {
-              for (var i = 0; i < logs.length; i++) {
-                  console.log(logs[i]);
-              }
-          })
-          .catch((err) => {
+        })
+        .then(function(logs) {
+            for (var i = 0; i < logs.length; i++) {
+                console.log(logs[i]);
+            }
+        })
+        .catch((err) => {
             log.error("Failed to retrieve log entries: %s", err.details.error.message);
-          });
-    } else {
-        log.warn("Query not initialized yet.");
-    }
+        })
 }
