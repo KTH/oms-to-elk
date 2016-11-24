@@ -31,5 +31,6 @@ module.exports = {
   tenantId: getEnv('OMS_ELK_TENANTID'),
   clientId: getEnv('OMS_ELK_CLIENTID'),
   clientKey: getEnv('OMS_ELK_CLIENTKEY'),
-  cacheSize: getEnv('OMS_ELK_CACHE_SIZE', 1000)
+  cacheSize: getEnv('OMS_ELK_CACHE_SIZE', 1000),
+  startDate: getEnv('OMS_ELK_START_DATE')
 };

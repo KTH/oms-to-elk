@@ -6,14 +6,10 @@ const log = require('kth-node-log');
 const logstash = require('./logstash');
 const FiFoCache = require('fifo-cache');
 
-var cache = new FiFoCache({
-    max: config.full.cacheSize
-});
+var cache = initFifoCache();
+var timestamp = initStartDate();
 
-var timestamp = {};
-timestamp = new Date('05 October 2011 14:48 UTC');
-
-const client = armclient({
+const omsclient = armclient({
   subscriptionId: config.full.subscriptionId,
   auth: armclient.clientCredentials({
     tenantId: config.full.tenantId,
@@ -24,14 +20,14 @@ const client = armclient({
 
 module.exports = {
     getSavedQuery: getSavedQuery,
-    getLogEntries: getLogEntries
+    forwardLogEntriesToELK: forwardLogEntriesToELK
 }
 
 /*
  * Fetch the query string for a saved query and store it in the server.
  */
 function getSavedQuery(server) {
-    client.provider(config.full.resourceGroup, 'Microsoft.OperationalInsights')
+    omsclient.provider(config.full.resourceGroup, 'Microsoft.OperationalInsights')
       .get('/workspaces/' + config.full.workspace + '/savedSearches/' + config.full.savedSearch, { 'api-version': '2015-03-20' })
       .then(function(res) {
         server.query = res.body.properties.Query;
@@ -39,17 +35,15 @@ function getSavedQuery(server) {
       })
       .catch((err) => {
         log.error("Unable to get search string for saved query '%s' in OMS: %s", config.full.savedSearch, err.details.error.message);
-    });
+      })
 }
 
 /*
- * Fetch the log entries matching query stored in server.
+ * Forward the log entries matching query stored in server.
  */
-function getLogEntries(server) {
-    var query = server.query;
-
+function forwardLogEntriesToELK(query) {
     if (! query) {
-        log.warn("Query not initialized yet.");
+        log.warn("Query not initialized.");
         return;
     }
 
@@ -60,9 +54,7 @@ function getLogEntries(server) {
         end: new Date().toISOString()
     };
 
-    console.log(apiQuery);
-
-    client.provider(config.full.resourceGroup, 'Microsoft.OperationalInsights')
+    omsclient.provider(config.full.resourceGroup, 'Microsoft.OperationalInsights')
         .post('/workspaces/' + config.full.workspace + '/search', { 'api-version': '2015-03-20' }, apiQuery)
         .then(readEntries)
         .then(forwardEntries)
@@ -100,4 +92,23 @@ function forwardEntry(entry) {
         log.debug("cache hit for id: %s", entry.id);
     }
     return entry;
+}
+
+function initStartDate() {
+    var timestamp;
+
+    if (config.full.startDate) {
+        timestamp = new Date(config.full.startDate);
+    }
+    timestamp = new Date();
+
+    log.info("Start getting log entries from: %s", timestamp.toISOString());
+    return timestamp;
+}
+
+function initFifoCache() {
+    log.info("Using fifo cache size: %d", config.full.cacheSize);
+    return new FiFoCache({
+        max: config.full.cacheSize
+    });
 }

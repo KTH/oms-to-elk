@@ -23,5 +23,5 @@ schedule.scheduleJob(config.full.savedSearchSchedule, function() {
  * Fetch the log entries from the server.
  */
 schedule.scheduleJob(config.full.logQuerySchedule, function() {
-    oms.getLogEntries(server);
+    oms.forwardLogEntriesToELK(server.query);
 });
