@@ -10,3 +10,4 @@ LOGSTASH_CERT_PATH '/some/path.crt'
 OMS_ELK_TENANTID xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 OMS_ELK_CLIENTID xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 OMS_ELK_CLIENTKEY XXXxXXXXxxxxXXXXXxxXXxxxxxxXXXXxxxxxxxxxxxX=
+OMS_ELK_CACHE_SIZE 1000

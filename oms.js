@@ -4,6 +4,14 @@ const config = require('./server/init/configuration');
 const armclient = require('armclient');
 const log = require('kth-node-log');
 const logstash = require('./logstash');
+const FiFoCache = require('fifo-cache');
+
+var cache = new FiFoCache({
+    max: config.full.cacheSize
+});
+
+var timestamp = {};
+timestamp = new Date('05 October 2011 14:48 UTC');
 
 const client = armclient({
   subscriptionId: config.full.subscriptionId,
@@ -47,27 +55,49 @@ function getLogEntries(server) {
 
     var apiQuery = {
         top: config.full.batchSize,
-        Query: query
+        Query: query,
+        start: timestamp.toISOString(),
+        end: new Date().toISOString()
     };
+
+    console.log(apiQuery);
 
     client.provider(config.full.resourceGroup, 'Microsoft.OperationalInsights')
         .post('/workspaces/' + config.full.workspace + '/search', { 'api-version': '2015-03-20' }, apiQuery)
-        .then(function(res) {
-            return res.body.value;
-        })
-        .then(function(entries) {
-            return Promise.all(entries.map(function (entry) {
-                logstash.forward(entry);
-                return entry;
-          }))
-        })
-        .then(function(entries) {
-            return Promise.all(entries.map(function (entry) {
-                console.log(entry);
-                return entry;
-            }))
-        })
+        .then(readEntries)
+        .then(forwardEntries)
         .catch((err) => {
             log.error("Failed to retrieve log entries: %s", err)
         })
+}
+
+function updateTimestamp(d) {
+    if (timestamp instanceof Date) {
+        timestamp = new Date(Math.max(timestamp, d));
+    } else {
+        timestamp = d;
+    }
+    log.trace("Timestamp: %s", timestamp.toISOString());
+}
+
+function readEntries(res) {
+    log.debug("got %d log entries", res.body.value.length);
+    return res.body.value;
+}
+
+function forwardEntries(entries) {
+    return Promise.all(entries.map(forwardEntry));
+}
+
+function forwardEntry(entry) {
+    updateTimestamp(new Date(entry.TimeGenerated));
+
+    if (! cache.get(entry.id)) {
+        log.debug("forwarding id: %s", entry.id);
+        logstash.forward(entry);
+        cache.set(entry.id, {});
+    } else {
+        log.debug("cache hit for id: %s", entry.id);
+    }
+    return entry;
 }

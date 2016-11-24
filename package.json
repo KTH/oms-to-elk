@@ -20,7 +20,8 @@
     "kth-node-server": "github:KTH/kth-node-server.git#v1.0.1",
     "armclient": "1.1.0",
     "node-schedule": "1.2.0",
-    "lumberjack-protocol": "1.0.4"
+    "lumberjack-protocol": "1.0.4",
+    "fifo-cache": "0.1.0"
   },
   "engines": {
     "node": "4.6.2"

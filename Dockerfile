@@ -4,7 +4,8 @@ EXPOSE 3001
 
 ENV NODE_ENV production
 
-WORKDIR /usr/src/app
+WORKDIR /opt/data
+WORKDIR /opt/app
 COPY [".", "."]
 
 RUN apk add --no-cache --virtual .build-deps git \

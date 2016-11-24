@@ -4,7 +4,6 @@ const getEnv = require('kth-node-configuration').getEnv;
 const packageFile = require('../package.json');
 
 module.exports = {
-  // The proxy prefix path if the application is proxied. E.g /api/node
   proxyPrefixPath: {
     uri: '/monitor'
   },
@@ -17,10 +16,7 @@ module.exports = {
     env: getEnv('NODE_ENV'),
     stream: process.stdout,
     console: {
-      enabled: true,
-      format: {
-        outputMode: 'raw'
-      }
+      enabled: true
     }
   },
   subscriptionId: getEnv('AZURE_SUBSCRIPTION_ID', '2c39d62f-c399-4518-a841-4c1952136db5'),
@@ -34,5 +30,6 @@ module.exports = {
   logstashCertificatePath: getEnv('LOGSTASH_CERT_PATH', './logstash.crt'),
   tenantId: getEnv('OMS_ELK_TENANTID'),
   clientId: getEnv('OMS_ELK_CLIENTID'),
-  clientKey: getEnv('OMS_ELK_CLIENTKEY')
+  clientKey: getEnv('OMS_ELK_CLIENTKEY'),
+  cacheSize: getEnv('OMS_ELK_CACHE_SIZE', 1000)
 };
