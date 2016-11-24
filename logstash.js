@@ -30,6 +30,8 @@ client.on('dropped', (count) => {
 });
 
 function forwardLogEntry(entry) {
+    // ELK doesn't approve of the OMS meta data.'
+    delete entry["__metadata"];
     client.writeDataFrame({"host": entry.hostname_s, "line": JSON.stringify(entry)});
     return entry;
 }
