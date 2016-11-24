@@ -8,7 +8,7 @@ const fs = require('fs');
 
 module.exports = {
     forward: forwardLogEntry
-}
+};
 
 const logstashHost = url.parse(config.full.logstashServer);
 const connectionOptions = {
@@ -23,13 +23,11 @@ client.on('connect', () => {
     log.info('Connected to logstash server');
 });
 client.on('disconnect', (err) => {
-    log.warn('Disconnected from logstash server: %s', err)
+    log.warn('Disconnected from logstash server: %s', err);
 });
 client.on('dropped', (count) => {
-    log.error('Logstash client has dropped %d messages', count)
+    log.error('Logstash client has dropped %d messages', count);
 });
-
-//client.writeDataFrame({"line": "Hello World!"});
 
 function forwardLogEntry(entry) {
     client.writeDataFrame({"host": entry.hostname_s, "line": JSON.stringify(entry)});

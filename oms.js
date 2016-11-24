@@ -30,8 +30,10 @@ function getSavedQuery(server) {
     omsclient.provider(config.full.resourceGroup, 'Microsoft.OperationalInsights')
       .get('/workspaces/' + config.full.workspace + '/savedSearches/' + config.full.savedSearch, { 'api-version': '2015-03-20' })
       .then(function(res) {
-        server.query = res.body.properties.Query;
-        log.debug("Got query from OMS: '%s'", server.query);
+        if (server.query != res.body.properties.Query) {
+            server.query = res.body.properties.Query;
+            log.info("Setting query from OMS: '%s'", server.query);
+        }
       })
       .catch((err) => {
         log.error("Unable to get search string for saved query '%s' in OMS: %s", config.full.savedSearch, err.details.error.message);
@@ -97,10 +99,13 @@ function forwardEntry(entry) {
 function initStartDate() {
     var timestamp;
 
+//fs.readFileSync(config.full.logstashCertificatePath, {encoding: 'utf-8'})
+
     if (config.full.startDate) {
         timestamp = new Date(config.full.startDate);
+    } else {
+        timestamp = new Date();
     }
-    timestamp = new Date();
 
     log.info("Start getting log entries from: %s", timestamp.toISOString());
     return timestamp;
