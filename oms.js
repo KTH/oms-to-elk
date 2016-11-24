@@ -19,15 +19,22 @@ const omsclient = armclient({
   })
 });
 
+var server;
+
+function setServer(srv) {
+    server = srv;
+}
+
 module.exports = {
     getSavedQuery: getSavedQuery,
-    forwardLogEntriesToELK: forwardLogEntriesToELK
+    forwardLogEntriesToELK: forwardLogEntriesToELK,
+    setServer: setServer
 }
 
 /*
  * Fetch the query string for a saved query and store it in the server.
  */
-function getSavedQuery(server) {
+function getSavedQuery() {
     omsclient.provider(config.full.resourceGroup, 'Microsoft.OperationalInsights')
       .get('/workspaces/' + config.full.workspace + '/savedSearches/' + config.full.savedSearch, { 'api-version': '2015-03-20' })
       .then(function(res) {
@@ -44,7 +51,9 @@ function getSavedQuery(server) {
 /*
  * Forward the log entries matching query stored in server.
  */
-function forwardLogEntriesToELK(query) {
+function forwardLogEntriesToELK() {
+    var query = server.query;
+
     if (! query) {
         log.warn("Query not initialized.");
         return;
@@ -101,6 +110,8 @@ function forwardEntry(entry) {
         log.debug("forwarding id: %s", entry.id);
         logstash.forward(entry);
         cache.set(entry.id, {});
+        server.counters.total += 1;
+        server.counters.delta += 1;
     } else {
         log.debug("cache hit for id: %s", entry.id);
     }

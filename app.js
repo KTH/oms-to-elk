@@ -10,18 +10,43 @@ server.init();
 server.start();
 
 // Initialize.
-oms.getSavedQuery(server);
+oms.setServer(server);
+oms.getSavedQuery();
+
+server.status = "OK";
+server.counters = {
+    total: 0,
+    delta: 0
+}
 
 /*
  * Fetch the saved query from server.
  */
 schedule.scheduleJob(config.full.savedSearchSchedule, function() {
-    oms.getSavedQuery(server);
+    oms.getSavedQuery();
 });
 
 /*
  * Fetch the log entries from the server.
  */
 schedule.scheduleJob(config.full.logQuerySchedule, function() {
-    oms.forwardLogEntriesToELK(server.query);
+    oms.forwardLogEntriesToELK();
+});
+
+/*
+ * Fetch the log entries from the server.
+ */
+schedule.scheduleJob(config.full.statisticsSchedule, function() {
+    var jsonLog = {};
+    
+    jsonLog.Type = "OmsToElkStatistics";
+    if (server.query) {
+        jsonLog.Query = server.query;
+    } else {
+        jsonLog.Query = "Not intialized";
+    }
+    jsonLog.TotalMessages = server.counters.total;
+    jsonLog.Messages = server.counters.delta;
+    process.stdout.write(JSON.stringify(jsonLog) + '\n');
+    server.counters.delta = 0;
 });

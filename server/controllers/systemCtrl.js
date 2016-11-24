@@ -29,17 +29,10 @@ function getAbout (req, res) {
 }
 
 function isOk (app) {
-  if (! app.queues) {
+  if (! app.status) {
     return false;
   }
-  var queues = app.queues;
-  for (var i = 0; i < queues.length; i++) {
-    var queue = queues[i];
-    if (queue.dead_messages > 0) {
-      return false;
-    }
-  }
-  return true;
+  return (app.status === "OK");
 }
 
 /**
@@ -49,7 +42,7 @@ function isOk (app) {
 function getMonitor (req, res) {
   res.type('text').render('system/monitor', {
     test: isOk(req.app) ? 'OK' : 'ERROR',
-    queues: req.app.queues
+    total: req.app.counters.total
   })
 }
 

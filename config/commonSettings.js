@@ -33,5 +33,6 @@ module.exports = {
   clientId: getEnv('OMS_ELK_CLIENTID'),
   clientKey: getEnv('OMS_ELK_CLIENTKEY'),
   cacheSize: getEnv('OMS_ELK_CACHE_SIZE', 1000),
-  startDate: getEnv('OMS_ELK_START_DATE')
+  startDate: getEnv('OMS_ELK_START_DATE'),
+  statisticsSchedule: getEnv('OMS_STATISTICS_SCHEDULE', '* * * * *')
 };

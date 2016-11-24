@@ -1,12 +1,2 @@
 APPLICATION_STATUS: {{test}}
-{{#if queues}}
-{{#each queues}}
-{{#if dead_messages}}
-ERROR: {{name}} contains {{dead_messages}} dead letters.
-{{else}}
-OK: {{name}}
-{{/if}}
-{{/each}}
-{{else}}
-ERROR: Unable to retrieve current information.
-{{/if}}
+Forwarded log entries: {{total}}
