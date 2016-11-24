@@ -4,3 +4,4 @@ config/localSettings.js
 *~
 node_modules/*
 environment
+timestamp.json
