@@ -5,6 +5,7 @@ const armclient = require('armclient');
 const log = require('kth-node-log');
 const logstash = require('./logstash');
 const FiFoCache = require('fifo-cache');
+const fs = require('fs');
 
 var cache = initFifoCache();
 var timestamp = initStartDate();
@@ -60,6 +61,7 @@ function forwardLogEntriesToELK(query) {
         .post('/workspaces/' + config.full.workspace + '/search', { 'api-version': '2015-03-20' }, apiQuery)
         .then(readEntries)
         .then(forwardEntries)
+        .then(recordTimestamp)
         .catch((err) => {
             log.error("Failed to retrieve log entries: %s", err)
         })
@@ -77,6 +79,15 @@ function updateTimestamp(d) {
 function readEntries(res) {
     log.debug("got %d log entries", res.body.value.length);
     return res.body.value;
+}
+
+function recordTimestamp(res) {
+    return new Promise(function(resolve, reject) {
+        fs.writeFile(config.full.timestampFile, timestamp.toJSON(), 'utf-8', function(err) {
+            if (err) reject(err);
+            else resolve(res);
+        });
+    });
 }
 
 function forwardEntries(entries) {
@@ -99,12 +110,15 @@ function forwardEntry(entry) {
 function initStartDate() {
     var timestamp;
 
-//fs.readFileSync(config.full.logstashCertificatePath, {encoding: 'utf-8'})
-
-    if (config.full.startDate) {
-        timestamp = new Date(config.full.startDate);
-    } else {
-        timestamp = new Date();
+    try {
+        fs.accessSync(config.full.timestampFile, fs.constants.O_RDWR);
+        timestamp = new Date(fs.readFileSync(config.full.timestampFile, {encoding: 'utf-8'}));
+    } catch (err) {
+        if (config.full.startDate) {
+            timestamp = new Date(config.full.startDate);
+        } else {
+            timestamp = new Date();
+        }
     }
 
     log.info("Start getting log entries from: %s", timestamp.toISOString());

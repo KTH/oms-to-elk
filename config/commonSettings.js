@@ -28,6 +28,7 @@ module.exports = {
   batchSize: getEnv('OMS_QUERY_BATCH_SIZE', 200),
   logstashServer: getEnv('LOGSTASH_SERVER_URL', 'logstash://localhost:5000'),
   logstashCertificatePath: getEnv('LOGSTASH_CERT_PATH', './logstash.crt'),
+  timestampFile: getEnv('OMS_ELK_TIMESTAMP_PATH', './timestamp.json'),
   tenantId: getEnv('OMS_ELK_TENANTID'),
   clientId: getEnv('OMS_ELK_CLIENTID'),
   clientKey: getEnv('OMS_ELK_CLIENTKEY'),
