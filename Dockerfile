@@ -13,7 +13,6 @@ WORKDIR /opt/data
 WORKDIR /opt/app
 COPY [".", "."]
 
-RUN apk add --no-cache ca-certificates 
 RUN apk add --no-cache --virtual .build-deps git \
     && npm install \
     && npm prune \
