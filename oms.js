@@ -37,7 +37,7 @@ module.exports = {
  */
 function getSavedQuery() {
     omsclient.provider(config.full.resourceGroup, 'Microsoft.OperationalInsights')
-      .get('/workspaces/' + config.full.workspace + '/savedSearches/' + config.full.savedSearch, { 'api-version': '2015-03-20' })
+      .get('/workspaces/' + config.full.omsWorkspace + '/savedSearches/' + config.full.savedSearch, { 'api-version': '2015-03-20' })
       .then(function(res) {
         if (server.query != res.body.properties.Query) {
             server.query = res.body.properties.Query;
@@ -68,7 +68,7 @@ function forwardLogEntriesToELK() {
     };
 
     omsclient.provider(config.full.resourceGroup, 'Microsoft.OperationalInsights')
-        .post('/workspaces/' + config.full.workspace + '/search', { 'api-version': '2015-03-20' }, apiQuery)
+        .post('/workspaces/' + config.full.omsWorkspace + '/search', { 'api-version': '2015-03-20' }, apiQuery)
         .then(readEntries)
         .then(forwardEntries)
         .then(recordTimestamp)

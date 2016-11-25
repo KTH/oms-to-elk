@@ -12,11 +12,37 @@ How to set up OMS.
 
 How to set up Logstash.
 
+## Container configuration
+
 ### Environment configuration
+
+Required settings.
 
 | Variable | Description |
 |----------|-------------|
-| x | y |
+| AZURE_SUBSCRIPTION_ID | The UUID of your Azure subscription. Looks like xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx |
+| AZURE_RESOURCE_GROUP | The name of your resource group. |
+| OMS_WORKSPACE | The name of your OMS workspace. |
+| OMS_ELK_TENANTID | The UUID of the "tenant" for Oauth client authentication to Azure. |
+| OMS_ELK_CLIENTID | The UUID of the oms-to-elk client to authenticate to Azure with. |
+| OMS_ELK_CLIENTKEY | The key corresponding to the UUID above. |
+| LOGSTASH_SERVER_URL | A URI to the logstash host. Protocol is ignored, only host and port information is used. E.g. logstash://localhost:5000 |
+
+Optional settings, mainly tuning.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| OMS_SAVED_QUERY | oms-to-elk\|Default | The name of the saved query in OMS to use. |
+| OMS_OMS_SAVED_SEARCH_SCHEDULE | */20 * * * * * | When to check if query changed, default every 20 minutes. |
+| LOG_QUERY_SCHEDULE | */20 * * * * | When to check for new log entries, default every 20 seconds. |
+| OMS_STATISTICS_SCHEDULE | * * * * * | When to print a statistics log, default every minute. |
+| LOGSTASH_CERT_PATH | /opt/data/logstash.crt | The path to the certificate to authenticate to logstash with. |
+| OMS_ELK_TIMESTAMP_PATH | /opt/data/timestamp.json | The path to the persisted timestamp. |
+| OMS_QUERY_BATCH_SIZE | 200 | The maximum number of items to fetch from OMS in one poll. |
+| OMS_ELK_CACHE_SIZE | 1000 | How many log entry ids we keep track of. |
+| OMS_ELK_BACK_TICK | 30000 | A number of milliseconds we remove from timestamp in each poll in case OMS indexed some entry late. |
+
+For details on format for scheduling options, see https://www.npmjs.com/package/node-schedule
 
 ## Running
 

@@ -1,10 +1,6 @@
-SERVICE_BUS_URI=lms-queue.servicebus.windows.net
-SERVICE_BUS_USER=RootManageSharedAccessKey
-SERVICE_BUS_PASSWORD=
-SERVICE_BUS_QUEUE=lmstestqueue
-UG_SERVER=ug2server-r.referens.sys.kth.se
-UG_SYSTEM=canvassync
-UG_PASSWORD=
-UG_VERSION=current
-UG_USER_ATTRIBUTES=kthid,affiliation,alias,email_address
-UG_GROUP_ATTRIBUTES=kthid,ug1name,email_alias,name_en,name_sv,member
+AZURE_SUBSCRIPTION_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+AZURE_RESOURCE_GROUP=name-of-your-resource-group
+OMS_WORKSPACE=name-of-your-oms-workspace
+OMS_ELK_TENANTID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+OMS_ELK_CLIENTKEY=YYyYYyYYyYyyYyYYYyyYyyyyYYyy=
+OMS_ELK_CLIENTID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx

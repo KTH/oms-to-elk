@@ -4,6 +4,7 @@ EXPOSE 3001
 
 ENV NODE_ENV production
 ENV OMS_ELK_TIMESTAMP_PATH /opt/data/timestamp.json
+ENV LOGSTASH_CERT_PATH /opt/data/logstash.crt
 
 WORKDIR /opt/data
 WORKDIR /opt/app
