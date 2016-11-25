@@ -42,8 +42,9 @@ schedule.scheduleJob(config.full.statisticsSchedule, function() {
     jsonLog.Type = "OmsToElkStatistics";
     if (server.query) {
         jsonLog.Query = server.query;
-    } else {
-        jsonLog.Query = "Not intialized";
+    }
+    if (server.timestamp) {
+        jsonLog.CurrentTimestamp = server.timestamp;
     }
     jsonLog.TotalMessages = server.counters.total;
     jsonLog.Messages = server.counters.delta;
