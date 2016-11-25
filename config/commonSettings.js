@@ -16,7 +16,10 @@ module.exports = {
     env: getEnv('NODE_ENV'),
     stream: process.stdout,
     console: {
-      enabled: true
+      enabled: true,
+      format: {
+        outputMode: 'raw'
+      }
     }
   },
   subscriptionId: getEnv('AZURE_SUBSCRIPTION_ID', '2c39d62f-c399-4518-a841-4c1952136db5'),
