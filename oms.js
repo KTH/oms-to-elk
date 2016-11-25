@@ -123,12 +123,14 @@ function initStartDate() {
     var timestamp;
 
     try {
-        fs.accessSync(config.full.timestampFile, fs.constants.O_RDWR);
         timestamp = new Date(fs.readFileSync(config.full.timestampFile, {encoding: 'utf-8'}));
     } catch (err) {
+        log.warn(err, "Unable to load initial date from file.")
         if (config.full.startDate) {
+            log.info("Using initial date from environment: %s", config.full.startDate);
             timestamp = new Date(config.full.startDate);
         } else {
+            log.info("Using current time as initial date.");
             timestamp = new Date();
         }
     }
