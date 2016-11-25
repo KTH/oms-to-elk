@@ -22,6 +22,7 @@ const logstashHost = url.parse(config.full.logstashServer);
 const connectionOptions = {
     host: logstashHost.hostname,
     port: logstashHost.port,
+    rejectUnauthorized: false,
     ca: [fs.readFileSync(config.full.logstashCaPath, {encoding: 'utf-8'})],
     cert: [fs.readFileSync(config.full.logstashCertificatePath, {encoding: 'utf-8'})],
     key: [fs.readFileSync(config.full.logstashKeyPath, {encoding: 'utf-8'})]
