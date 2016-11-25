@@ -81,6 +81,18 @@ output {
 
 ## Container configuration
 
+### Certificates and persistence of timestamp
+
+The client needs certificates to authenticate to logstash. The path and name 
+of the certificate is defined by LOGSTASH_CERT_PATH (see below). You can
+provide this by a volume mount of some place containing the file.
+
+The client stores a timestamp for the last seen log entry, the path and name
+is defined by OMS_ELK_TIMESTAMP_PATH. If you want to persist it, e.g. to make
+it available on many hosts in a swarm environment, make a volume mount for it.
+The file will be created if it does not exist.
+
+
 ### Environment configuration
 
 Required settings.
