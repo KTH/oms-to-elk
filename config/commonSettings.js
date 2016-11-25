@@ -28,7 +28,8 @@ module.exports = {
   savedSearchSchedule: getEnv('OMS_SAVED_SEARCH_SCHEDULE', '*/10 * * * *'),
   statisticsSchedule: getEnv('OMS_STATISTICS_SCHEDULE', '* * * * *'),
   logstashServer: getEnv('LOGSTASH_SERVER_URL', 'logstash://localhost:5000'),
-  logstashCertificatePath: getEnv('LOGSTASH_CERT_PATH', './logstash.crt'),
+  logstashCertificatePath: getEnv('LOGSTASH_CERT_PATH', './client.crt'),
+  logstashKeyPath: getEnv('LOGSTASH_KEY_PATH', './client.key'),
   logstashCaPath: getEnv('LOGSTASH_CA_PATH', './ca.crt'),
   timestampFile: getEnv('OMS_ELK_TIMESTAMP_PATH', './timestamp.json'),
   maxQueueSize: getEnv('OMS_ELK_MAX_QUEUE_SIZE', 1000),
@@ -42,7 +43,6 @@ module.exports = {
   resourceGroup: getEnv('AZURE_RESOURCE_GROUP'),
   omsWorkspace: getEnv('OMS_WORKSPACE'),
   tenantId: getEnv('OMS_ELK_TENANTID'),
-  clientKey: getEnv('OMS_ELK_CLIENTKEY'),
   clientId: getEnv('OMS_ELK_CLIENTID'),
-  logstashCertificateKey: getEnv('LOGSTASH_CERT_KEY')
+  clientSecret: getEnv('OMS_ELK_CLIENTKEY')
 };

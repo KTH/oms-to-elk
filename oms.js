@@ -14,7 +14,7 @@ const omsclient = armclient({
   auth: armclient.clientCredentials({
     tenantId: config.full.tenantId,
     clientId: config.full.clientId,
-    clientSecret: config.full.clientKey
+    clientSecret: config.full.clientSecret
   })
 });
 

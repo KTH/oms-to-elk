@@ -1,6 +1,7 @@
 config/localSettings.js
 *.log
 *.crt
+*.key
 *~
 node_modules/*
 environment

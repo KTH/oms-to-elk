@@ -106,7 +106,6 @@ Required settings.
 | OMS_ELK_CLIENTID | The UUID of the oms-to-elk client to authenticate to Azure with. |
 | OMS_ELK_CLIENTKEY | The key corresponding to the UUID above. |
 | LOGSTASH_SERVER_URL | A URI to the logstash host. Protocol is ignored, only host and port information is used. E.g. logstash://localhost:5000 |
-| LOGSTASH_CERT_KEY | The key for the certificate file. |
 
 Optional settings, mainly tuning.
 
@@ -119,6 +118,7 @@ Optional settings, mainly tuning.
 | LOG_QUERY_SCHEDULE | */20 * * * * | When to check for new log entries, default every 20 seconds. |
 | OMS_STATISTICS_SCHEDULE | * * * * * | When to print a statistics log, default every minute. |
 | LOGSTASH_CERT_PATH | /opt/data/client.crt | The path to the certificate to authenticate to logstash with. |
+| LOGSTASH_CERT_KEY | /opt/data/client.key | The path to the key for the certificate file. |
 | LOGSTASH_CA_PATH | /opt/data/ca.crt | The path to the ca file to use when verifying server. |
 | OMS_ELK_TIMESTAMP_PATH | /opt/data/timestamp.json | The path to the persisted timestamp. |
 | OMS_QUERY_BATCH_SIZE | 200 | The maximum number of items to fetch from OMS in one poll. |
