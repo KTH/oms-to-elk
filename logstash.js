@@ -7,8 +7,16 @@ const url = require('url');
 const fs = require('fs');
 
 module.exports = {
-    forward: forwardLogEntry
+    forward: forwardLogEntry,
+    setServer: setServer
 };
+
+var server;
+
+function setServer(srv) {
+    server = srv;
+}
+
 
 const logstashHost = url.parse(config.full.logstashServer);
 const connectionOptions = {
@@ -27,6 +35,7 @@ client.on('disconnect', (err) => {
 });
 client.on('dropped', (count) => {
     log.error('Logstash client has dropped %d messages', count);
+    server.status = "ERROR";
 });
 
 function forwardLogEntry(entry) {

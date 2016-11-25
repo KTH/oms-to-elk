@@ -23,6 +23,7 @@ var server;
 
 function setServer(srv) {
     server = srv;
+    logstash.setServer(server);
 }
 
 module.exports = {
