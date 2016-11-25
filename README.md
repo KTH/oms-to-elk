@@ -49,7 +49,7 @@ If you choose, you can do all kinds of other magic with filters,
 #### output
 
 Optional but recommended. The forwarder tries to avoid sending items multiple times,
-but the duplicate detection cache is not persisted, so there is a change items will
+but the duplicate detection cache is not persisted, so there is a chance items will
 be forwarded again on restarts, causing duplicate entries in ELK.
 
 To avoid this you can use the UUID set by OMS for each entry as the document id used 
