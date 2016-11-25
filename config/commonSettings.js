@@ -25,14 +25,15 @@ module.exports = {
   savedSearch: getEnv('OMS_SAVED_QUERY', 'elk|BunyanWarn'),
   logQuerySchedule: getEnv('OMS_LOG_QUERY_SCHEDULE', '*/10 * * * * *'),
   savedSearchSchedule: getEnv('OMS_SAVED_SEARCH_SCHEDULE', '*/10 * * * *'),
+  statisticsSchedule: getEnv('OMS_STATISTICS_SCHEDULE', '* * * * *'),
   batchSize: getEnv('OMS_QUERY_BATCH_SIZE', 200),
   logstashServer: getEnv('LOGSTASH_SERVER_URL', 'logstash://localhost:5000'),
   logstashCertificatePath: getEnv('LOGSTASH_CERT_PATH', './logstash.crt'),
   timestampFile: getEnv('OMS_ELK_TIMESTAMP_PATH', './timestamp.json'),
-  tenantId: getEnv('OMS_ELK_TENANTID'),
-  clientId: getEnv('OMS_ELK_CLIENTID'),
-  clientKey: getEnv('OMS_ELK_CLIENTKEY'),
   cacheSize: getEnv('OMS_ELK_CACHE_SIZE', 1000),
-  startDate: getEnv('OMS_ELK_START_DATE'),
-  statisticsSchedule: getEnv('OMS_STATISTICS_SCHEDULE', '* * * * *')
+  backTick: getEnv('OMS_ELK_BACK_TICK', 30000),
+  tenantId: getEnv('OMS_ELK_TENANTID'),
+  clientKey: getEnv('OMS_ELK_CLIENTKEY'),
+  clientId: getEnv('OMS_ELK_CLIENTID'),
+  startDate: getEnv('OMS_ELK_START_DATE')
 };

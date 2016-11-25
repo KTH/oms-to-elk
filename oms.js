@@ -62,7 +62,7 @@ function forwardLogEntriesToELK() {
     var apiQuery = {
         top: config.full.batchSize,
         Query: query,
-        start: timestamp.toISOString(),
+        start: new Date(timestamp - config.full.backTick).toISOString(),
         end: new Date().toISOString()
     };
 
