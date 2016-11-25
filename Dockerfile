@@ -6,6 +6,7 @@ ENV NODE_ENV production
 ENV OMS_ELK_TIMESTAMP_PATH /opt/data/timestamp.json
 ENV LOGSTASH_CERT_PATH /opt/data/client.crt
 ENV LOGSTASH_CA_PATH /opt/data/ca.crt
+ENV LOGGING_LEVEL info
 
 WORKDIR /opt/data
 WORKDIR /opt/app

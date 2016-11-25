@@ -113,6 +113,7 @@ Optional settings, mainly tuning.
 | Variable | Default | Description |
 |----------|---------|-------------|
 | OMS_ELK_START_DATE | none | If set, and no stored timestamp is found, start from this timestamp in ISO 8601 format. | 
+| LOGGING_LEVEL | info | Logging level. More information will be printed if set to debug. |
 | OMS_SAVED_QUERY | oms-to-elk\|Default | The name of the saved query in OMS to use. |
 | OMS_OMS_SAVED_SEARCH_SCHEDULE | */20 * * * * * | When to check if query changed, default every 20 minutes. |
 | LOG_QUERY_SCHEDULE | */20 * * * * | When to check for new log entries, default every 20 seconds. |
