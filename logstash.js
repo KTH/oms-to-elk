@@ -35,7 +35,7 @@ client.on('disconnect', (err) => {
 });
 client.on('dropped', (count) => {
     log.error('Logstash client has dropped %d messages', count);
-    server.status = "ERROR";
+    server.error = 'Logstash client has dropped '+ count + ' messages';
 });
 
 function forwardLogEntry(entry) {

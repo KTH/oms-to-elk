@@ -8,7 +8,6 @@ const FiFoCache = require('fifo-cache');
 const fs = require('fs');
 
 var cache = initFifoCache();
-var timestamp = initStartDate();
 
 const omsclient = armclient({
   subscriptionId: config.full.subscriptionId,
@@ -23,6 +22,7 @@ var server;
 
 function setServer(srv) {
     server = srv;
+    server.timestamp = initStartDate();
     logstash.setServer(server);
 }
 
@@ -45,7 +45,7 @@ function getSavedQuery() {
         }
       })
       .catch((err) => {
-        log.error("Unable to get search string for saved query '%s' in OMS: %s", config.full.savedSearch, err.details.error.message);
+        log.error(err, "Unable to get search string for saved query '%s' in OMS.", config.full.savedSearch);
       })
 }
 
@@ -63,7 +63,7 @@ function forwardLogEntriesToELK() {
     var apiQuery = {
         top: config.full.batchSize,
         Query: query,
-        start: new Date(timestamp - config.full.backTick).toISOString(),
+        start: new Date(server.timestamp - config.full.backTick).toISOString(),
         end: new Date().toISOString()
     };
 
@@ -73,17 +73,17 @@ function forwardLogEntriesToELK() {
         .then(forwardEntries)
         .then(recordTimestamp)
         .catch((err) => {
-            log.error("Failed to retrieve log entries: %s", err)
+            log.error(err, "Failed to retrieve log entries.")
         })
 }
 
 function updateTimestamp(d) {
-    if (timestamp instanceof Date) {
-        timestamp = new Date(Math.max(timestamp, d));
+    if (server.timestamp instanceof Date) {
+        server.timestamp = new Date(Math.max(server.timestamp, d));
     } else {
-        timestamp = d;
+        server.timestamp = d;
     }
-    log.trace("Timestamp: %s", timestamp.toISOString());
+    log.trace("Timestamp: %s", server.timestamp.toISOString());
 }
 
 function readEntries(res) {
@@ -93,7 +93,7 @@ function readEntries(res) {
 
 function recordTimestamp(res) {
     return new Promise(function(resolve, reject) {
-        fs.writeFile(config.full.timestampFile, timestamp.toJSON(), 'utf-8', function(err) {
+        fs.writeFile(config.full.timestampFile, server.timestamp.toJSON(), 'utf-8', function(err) {
             if (err) reject(err);
             else resolve(res);
         });

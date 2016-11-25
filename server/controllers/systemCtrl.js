@@ -29,10 +29,10 @@ function getAbout (req, res) {
 }
 
 function isOk (app) {
-  if (! app.status) {
+  if (app.error) {
     return false;
   }
-  return (app.status === "OK");
+  return true;
 }
 
 /**
@@ -42,7 +42,9 @@ function isOk (app) {
 function getMonitor (req, res) {
   res.type('text').render('system/monitor', {
     test: isOk(req.app) ? 'OK' : 'ERROR',
-    total: req.app.counters.total
+    error: req.app.error,
+    total: req.app.counters.total,
+    timestamp: req.app.timestamp
   })
 }
 
