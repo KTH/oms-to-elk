@@ -5,4 +5,3 @@ OMS_ELK_TENANTID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 OMS_ELK_CLIENTKEY=YYyYYyYYyYyyYyYYYyyYyyyyYYyy=
 OMS_ELK_CLIENTID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 LOGSTASH_SERVER_URL=logstash://hostname:port
-LOGSTASH_CERT_KEY=the-key-to-client-certificate

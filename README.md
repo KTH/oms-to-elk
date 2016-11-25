@@ -27,6 +27,9 @@ configuration. A complete, if trivial, example used for testing with the
 sebp/elk:es241_l240_k461 docker image can be found in
 `elk/conf.d/01-lumberjack-input.conf`
 
+The under lying node tls library assumes a certificate and corresponding key file
+both in PEM format.
+
 #### input
 
 You have to set the json codec on the input used with this forwarder.
@@ -84,8 +87,13 @@ output {
 ### Certificates and persistence of timestamp
 
 The client needs certificates to authenticate to logstash. The path and name 
-of the certificate is defined by LOGSTASH_CERT_PATH (see below). You can
-provide this by a volume mount of some place containing the file.
+of the certificate is defined by LOGSTASH_CERT_PATH (see below), and the 
+corresponding key by LOGSTASH_KEY_PATH. You can provide this by a volume mount
+of some place containing the file.
+
+Currently there is assumed a ca.crt file used to verify the server identity,
+defined by LOGSTASH_CA_PATH. However I've not quite figured that one out yet,
+so server verification is disabled. The file is still expected to exist though.
 
 The client stores a timestamp for the last seen log entry, the path and name
 is defined by OMS_ELK_TIMESTAMP_PATH. If you want to persist it, e.g. to make
@@ -117,9 +125,9 @@ Optional settings, mainly tuning.
 | OMS_OMS_SAVED_SEARCH_SCHEDULE | */20 * * * * * | When to check if query changed, default every 20 minutes. |
 | LOG_QUERY_SCHEDULE | */20 * * * * | When to check for new log entries, default every 20 seconds. |
 | OMS_STATISTICS_SCHEDULE | * * * * * | When to print a statistics log, default every minute. |
-| LOGSTASH_CERT_PATH | /opt/data/client.crt | The path to the certificate to authenticate to logstash with. |
-| LOGSTASH_CERT_KEY | /opt/data/client.key | The path to the key for the certificate file. |
-| LOGSTASH_CA_PATH | /opt/data/ca.crt | The path to the ca file to use when verifying server. |
+| LOGSTASH_CERT_PATH | /opt/data/client.crt | The path to the PEM certificate to authenticate to logstash with. |
+| LOGSTASH_KEY_PATH | /opt/data/client.key | The path to the PEM key for the certificate file. |
+| LOGSTASH_CA_PATH | /opt/data/ca.crt | The path to the PEM ca file to use when verifying server. |
 | OMS_ELK_TIMESTAMP_PATH | /opt/data/timestamp.json | The path to the persisted timestamp. |
 | OMS_QUERY_BATCH_SIZE | 200 | The maximum number of items to fetch from OMS in one poll. |
 | OMS_ELK_CACHE_SIZE | 1000 | How many log entry ids we keep track of. |
@@ -134,12 +142,15 @@ Given a file environment containing environment variables as mentioned above, th
 run with docker run as in this example. There is a template available in environment.in.
 
 ```
-docker run --env-file=environment kthse/oms-to-elk:latest
+docker run --env-file=environment --net=<some net> -v /some/path:/opt/data --kthse/oms-to-elk:latest
 ```
+
+Given that the certificate files as mentioned above, as well as the timestamp file, are 
+kept in the read-write directory /some/path.
 
 ## Development
 
 ### Running an ELK docker container
 
 In the `elk` folder there is a helper script and configuration to run a docker
-image with  logstash and json codec enabled on input for development.
+image with logstash and json codec enabled on input for development.
