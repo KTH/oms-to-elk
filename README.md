@@ -6,11 +6,22 @@ A tool to forward logs from OMS to Logstash.
 
 ### OMS
 
-How to set up OMS.
+The node client uses the "client credentials type" Oauth2 authentication when 
+connecting to OMS. So you need to set up an "App" in Azure AD. You need values
+for the _TenantID_, _ClientID_ and _Client key_ you get when setting 
+up this container. I'm told there are instructions on how to create these.
+I really have no idea. 
+
+Then, you have to give the application access to your OMS workspace. This however
+is easy. You go to your Log Analytics area in the new Azure portal and give the
+application read access under Access control (IAM). You need the OMS 
+_workspace name_ when setting up the container.
+You also need the Azure _subscription id_ and the _resource group id_ where
+the OMS workspace is located.
 
 ### Logstash
 
-You have to generate a certificate for the client as per usual for authentication.
+You have to generate a _certificate_ for the client as per usual for authentication.
 In addition to this, there are a number of tweeks you want to add to your logstash
 configuration. A complete, if trivial, example used for testing with the 
 sebp/elk:es241_l240_k461 docker image can be found in
