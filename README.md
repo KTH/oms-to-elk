@@ -134,6 +134,7 @@ Optional settings, mainly tuning.
 | OMS_ELK_MAX_QUEUE_SIZE | 1000 | How many messages to keep in memory while waiting for logstash server before dropping messages. |
 | OMS_ELK_BACK_TICK | 10000 | A number of milliseconds we remove from timestamp in each poll in case OMS indexed some entry late. |
 | OMS_ELK_KEEPALIVE | 60000 | Set keep-alive in ms on logstash socket. A value of 0 disables keep-alive. |
+| OMS_ELK_REJECT_UNAUTHORIZED | true | Set to false to disable TLS verification of server. |
 
 For details on format for scheduling options, see https://www.npmjs.com/package/node-schedule
 

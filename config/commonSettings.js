@@ -37,6 +37,7 @@ module.exports = {
   cacheSize: getEnv('OMS_ELK_CACHE_SIZE', 1000),
   backTick: getEnv('OMS_ELK_BACK_TICK', 10000),
   keepAlive: getEnv('OMS_ELK_KEEPALIVE', 60000),
+  rejectUnauthorized: getEnv('OMS_ELK_REJECT_UNAUTHORIZED', true),
   // Truly optional without values.
   startDate: getEnv('OMS_ELK_START_DATE'),
   // Mandatory stuff that needs configuration.
