@@ -138,6 +138,17 @@ Optional settings, mainly tuning.
 
 For details on format for scheduling options, see https://www.npmjs.com/package/node-schedule
 
+### Tuning considerations
+
+There are dependencies between settings of OMS_QUERY_BATCH_SIZE and OMS_ELK_BACK_TICK in particular.
+If you recieve more than OMS_QUERY_BATCH_SIZE messages within the time frame set by OMS_ELK_BACK_TICK,
+the forwarder will get stuck and not be able to get past that time stamp.
+
+OMS_ELK_CACHE_SIZE should be larger than OMS_QUERY_BATCH_SIZE, but if you set the document_id in the 
+elasticsearch logstash output as described here, it is not critical.
+
+OMS_ELK_MAX_QUEUE_SIZE should be larger than the number of messages handled in one poll, OMS_QUERY_BATCH_SIZE.
+
 ## Running
 
 Given a file environment containing environment variables as mentioned above, the image can be
