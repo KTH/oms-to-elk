@@ -30,6 +30,7 @@ const connectionOptions = {
 
 const client = lumberjack.client(connectionOptions, {maxQueueSize: 100});
 client.on('connect', () => {
+    client._socket._socket.setKeepAlive(true, 60000);
     log.info('Connected to logstash server');
 });
 client.on('disconnect', (err) => {
