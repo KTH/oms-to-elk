@@ -22,7 +22,7 @@ const logstashHost = url.parse(config.full.logstashServer);
 const connectionOptions = {
     host: logstashHost.hostname,
     port: logstashHost.port,
-    rejectUnauthorized: false,
+//    rejectUnauthorized: false,
     ca: [fs.readFileSync(config.full.logstashCaPath, {encoding: 'utf-8'})],
     cert: [fs.readFileSync(config.full.logstashCertificatePath, {encoding: 'utf-8'})],
     key: [fs.readFileSync(config.full.logstashKeyPath, {encoding: 'utf-8'})]
@@ -32,6 +32,7 @@ const client = lumberjack.client(connectionOptions, {maxQueueSize: 100});
 client.on('connect', () => {
     if (config.full.keepAlive > 0) {
         log.debug("Setting keep alive: %d", config.full.keepAlive);
+        // This is horrible, but we have to do it. Love Node.js and JavaScript.
         client._socket._socket.setKeepAlive(true, config.full.keepAlive);
     }
     log.info('Connected to logstash server');
