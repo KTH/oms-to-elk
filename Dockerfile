@@ -18,4 +18,7 @@ RUN apk add --no-cache --virtual .build-deps git \
     && npm prune \
     && apk del .build-deps
 
-CMD [ "npm", "start" ]
+RUN apk add --no-cache bash
+
+ENTRYPOINT [ "/opt/app/run.sh" ]
+CMD [ "start" ]
