@@ -35,7 +35,8 @@ module.exports = {
   maxQueueSize: getEnv('OMS_ELK_MAX_QUEUE_SIZE', 1000),
   batchSize: getEnv('OMS_QUERY_BATCH_SIZE', 200),
   cacheSize: getEnv('OMS_ELK_CACHE_SIZE', 1000),
-  backTick: getEnv('OMS_ELK_BACK_TICK', 30000),
+  backTick: getEnv('OMS_ELK_BACK_TICK', 10000),
+  keepAlive: getEnv('OMS_ELK_KEEPALIVE', 60000),
   // Truly optional without values.
   startDate: getEnv('OMS_ELK_START_DATE'),
   // Mandatory stuff that needs configuration.

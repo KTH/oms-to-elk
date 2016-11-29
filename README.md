@@ -132,7 +132,8 @@ Optional settings, mainly tuning.
 | OMS_QUERY_BATCH_SIZE | 200 | The maximum number of items to fetch from OMS in one poll. |
 | OMS_ELK_CACHE_SIZE | 1000 | How many log entry ids we keep track of. |
 | OMS_ELK_MAX_QUEUE_SIZE | 1000 | How many messages to keep in memory while waiting for logstash server before dropping messages. |
-| OMS_ELK_BACK_TICK | 30000 | A number of milliseconds we remove from timestamp in each poll in case OMS indexed some entry late. |
+| OMS_ELK_BACK_TICK | 10000 | A number of milliseconds we remove from timestamp in each poll in case OMS indexed some entry late. |
+| OMS_ELK_KEEPALIVE | 60000 | Set keep-alive in ms on logstash socket. A value of 0 disables keep-alive. |
 
 For details on format for scheduling options, see https://www.npmjs.com/package/node-schedule
 
