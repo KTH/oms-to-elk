@@ -6,6 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ProtocolException;
@@ -46,12 +47,12 @@ public class LumberjackClient implements ProtocolAdapter {
     private DataInputStream input;
     private int sequence = 1;
 
-    public LumberjackClient(String keyStorePath, String server, int port, int timeout) throws IOException {
+    public LumberjackClient(String keyStoreFile, String server, int port, int timeout) throws IOException {
         this.server = server;
         this.port = port;
 
         try {
-            if(keyStorePath == null) {
+            if(keyStoreFile == null) {
                 throw new IOException("Key store not configured");
             }
             if(server == null) {
@@ -59,7 +60,9 @@ public class LumberjackClient implements ProtocolAdapter {
             }
 
             keyStore = KeyStore.getInstance("JKS");
-            keyStore.load(new FileInputStream(keyStorePath), null);
+            InputStream keystoreStream = this.getClass().getClassLoader().getResourceAsStream(keyStoreFile);
+            keyStore.load(keystoreStream, null);
+            keystoreStream.close();
 
             TrustManagerFactory tmf = TrustManagerFactory.getInstance("PKIX");
             tmf.init(keyStore);
