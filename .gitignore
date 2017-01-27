@@ -1,8 +1,10 @@
-config/localSettings.js
-*.log
-*.crt
-*.key
+/bin/
+/target/
 *~
-node_modules/*
-environment
-timestamp.json
+/.settings
+/.classpath
+/create-service
+/environment
+/dependency-reduced-pom.xml
+/pom.xml.versionsBackup
+/azure.properties
