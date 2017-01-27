@@ -3,12 +3,17 @@
 set -e
 
 cat << eof > azure.properties
+# Azure OMS connection details
 azure.clientId=${OMS_ELK_CLIENTID}
 azure.tenantId=${OMS_ELK_CLIENTID}
 azure.clientKey=${OMS_ELK_CLIENTKEY}
 azure.subscription=${AZURE_SUBSCRIPTION_ID}
 azure.resource_group=${AZURE_RESOURCE_GROUP}
 azure.oms_workspace=${OMS_WORKSPACE}
+# Logstash server connection details
+logstash.keystore=${LOGSTASH_KEYSTORE}
+logstash.server=${LOGSTASH_SERVER}
+logstash.port=${LOGSTASH_PORT}
 eof
 
 if [ ! -f /opt/data/timestamp.json ]; then
