@@ -18,18 +18,21 @@
 
 set -e
 
-cat << eof > azure.properties
+cat << eof > oms-to-elk.properties
 # Azure OMS connection details
-azure.clientId=${OMS_ELK_CLIENTID}
-azure.tenantId=${OMS_ELK_CLIENTID}
-azure.clientKey=${OMS_ELK_CLIENTKEY}
-azure.subscription=${AZURE_SUBSCRIPTION_ID}
-azure.resource_group=${AZURE_RESOURCE_GROUP}
-azure.oms_workspace=${OMS_WORKSPACE}
+azure.clientId="${OMS_ELK_CLIENTID}"
+azure.tenantId="${OMS_ELK_CLIENTID}"
+azure.clientKey="${OMS_ELK_CLIENTKEY}"
+azure.subscription="${AZURE_SUBSCRIPTION_ID}"
+azure.resource_group="${AZURE_RESOURCE_GROUP}"
+azure.oms_workspace="${AZURE_OMS_WORKSPACE}"
 # Logstash server connection details
-logstash.keystore=${LOGSTASH_KEYSTORE}
-logstash.server=${LOGSTASH_SERVER}
-logstash.port=${LOGSTASH_PORT}
+logstash.keystore="${LOGSTASH_KEYSTORE}"
+logstash.server="${LOGSTASH_SERVER}"
+logstash.port="${LOGSTASH_PORT}"
+# oms-to-elk configurations
+oms-to-elk.saved_query="${OMS_ELK_SAVED_QUERY}"
+
 eof
 
 if [ ! -f /opt/data/timestamp.json ]; then

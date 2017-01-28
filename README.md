@@ -12,7 +12,7 @@ Overview of required settings.
 |----------|-------------|
 | AZURE_SUBSCRIPTION_ID | The UUID of your Azure subscription. Looks like xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx |
 | AZURE_RESOURCE_GROUP | The name of your resource group. |
-| OMS_WORKSPACE | The name of your OMS workspace. |
+| AZURE_OMS_WORKSPACE | The name of your OMS workspace. |
 | OMS_ELK_TENANTID | The UUID of the "tenant" for Oauth client authentication to Azure. |
 | OMS_ELK_CLIENTID | The UUID of the oms-to-elk client to authenticate to Azure with. |
 | OMS_ELK_CLIENTKEY | The key corresponding to the UUID above. |
@@ -24,6 +24,7 @@ Optional settings.
 | Variable | Default | Description |
 |----------|---------|-------------|
 | LOGSTASH_KEYSTORE | oms-to-elk.keystore | The name of the keystore file to look for, not a path |
+| OMS_ELK_SAVED_QUERY | oms-to-elk:Default | The category and name of the keystore file to look for, not a path |
 
 
 ### OMS

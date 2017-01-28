@@ -18,7 +18,8 @@ FROM openjdk:8-jre-alpine
 
 RUN apk --no-cache add bash
 
-ENV LOGSTASH_KEYSTORE=oms-to-elk.keystore
+ENV LOGSTASH_KEYSTORE="oms-to-elk.keystore"
+ENV OMS_ELK_SAVED_QUERY="osm-to-elk:Default"
 
 ADD oms-to-elk-*.jar /opt/oms-to-elk/application.jar
 ADD run.sh /opt/oms-to-elk/run.sh

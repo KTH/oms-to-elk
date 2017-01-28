@@ -27,14 +27,18 @@ import com.microsoft.azure.AzureEnvironment;
 import com.microsoft.azure.credentials.ApplicationTokenCredentials;
 import com.microsoft.rest.credentials.ServiceClientCredentials;
 
+import retrofit2.Retrofit;
 import se.kth.infosys.lumberjack.Event;
 import se.kth.infosys.lumberjack.ProtocolAdapter;
 import se.kth.infosys.lumberjack.protocol.LumberjackClient;
 import se.kth.infosys.lumberjack.util.AdapterException;
 import se.kth.integral.oms.AzureLogAnalytics;
+import se.kth.integral.oms.SavedSearches;
 import se.kth.integral.oms.implementation.AzureLogAnalyticsImpl;
+import se.kth.integral.oms.implementation.SavedSearchesImpl;
 import se.kth.integral.oms.models.SavedSearch;
 import se.kth.integral.oms.models.SavedSearchesListResult;
+import se.kth.integral.oms.models.SearchResultsResponse;
 
 public class OMS {    
     public static void main(String[] args) throws IOException, AdapterException  {
@@ -51,14 +55,41 @@ public class OMS {
                 AzureEnvironment.AZURE);
         AzureLogAnalytics ala = new AzureLogAnalyticsImpl(credentials)
                 .withSubscriptionId(properties.getProperty("azure.subscription"));
-        //Workspaces workspaces = ala.workspaces();
-        SavedSearchesListResult savedSearches = ala.savedSearches().listByWorkspace(
-                properties.getProperty("azure.resource_group"),
-                properties.getProperty("azure.oms_workspace"));
-        for (SavedSearch savedSearch : savedSearches.value()) {
-            System.out.println(savedSearch.query());
+
+        String savedQueryString = properties.getProperty("oms-to-elk.saved_query").trim();
+        String queryName = "";
+        String queryCategory = "";
+        if (savedQueryString.contains(":")) {
+            String[] savedQueryArr = savedQueryString.split(":");
+            queryCategory = savedQueryArr[0];
+            queryName = savedQueryArr[1];
+        } else {
+            queryName = savedQueryString;
         }
 
+        SavedSearch savedSearch = null;
+        SavedSearchesListResult searches = ala.savedSearches().listByWorkspace(
+                properties.getProperty("azure.resource_group"),
+                properties.getProperty("azure.oms_workspace"));
+        for (SavedSearch search : searches.value()) {
+            if (queryCategory.equals(search.category().trim()) &&
+                    queryName.equals(search.displayName().trim())) {
+                savedSearch = search;
+            }
+        }
+        if (savedSearch == null) {
+            System.out.println("query: "+ queryCategory + ":" + queryName + " not found" );
+        }
+
+        SearchResultsResponse searchResults = ala.savedSearches().getResults(
+                properties.getProperty("azure.resource_group"),
+                properties.getProperty("azure.oms_workspace"),
+                savedSearch.category() + "|" + savedSearch.displayName());
+        System.out.println("Got hits: " + searchResults.value().size());
+        for (Object res : searchResults.value()) {
+            System.out.println(res);
+        }
+/*
         ProtocolAdapter logstash = new LumberjackClient(
                 properties.getProperty("logstash.keystore"),
                 properties.getProperty("logstash.server"),
@@ -70,5 +101,6 @@ public class OMS {
         List<Event> events = new ArrayList<Event>();
         events.add(event);
         logstash.sendEvents(events);
+*/
     }
 }
