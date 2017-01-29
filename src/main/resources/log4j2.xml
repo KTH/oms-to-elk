@@ -41,7 +41,7 @@
     </RollingFile>
   </Appenders>
   <Loggers>
-    <Logger name="se.kth.infosys" level="DEBUG"/>
+    <Logger name="se.kth.integral" level="DEBUG"/>
 
     <Root level="INFO">
       <AppenderRef ref="stdout"/>

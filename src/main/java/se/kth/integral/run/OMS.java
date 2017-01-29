@@ -19,32 +19,30 @@ package se.kth.integral.run;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.microsoft.azure.AzureEnvironment;
 import com.microsoft.azure.credentials.ApplicationTokenCredentials;
 import com.microsoft.rest.credentials.ServiceClientCredentials;
 
-import retrofit2.Retrofit;
-import se.kth.infosys.lumberjack.Event;
-import se.kth.infosys.lumberjack.ProtocolAdapter;
-import se.kth.infosys.lumberjack.protocol.LumberjackClient;
 import se.kth.infosys.lumberjack.util.AdapterException;
-import se.kth.integral.oms.AzureLogAnalytics;
-import se.kth.integral.oms.SavedSearches;
-import se.kth.integral.oms.implementation.AzureLogAnalyticsImpl;
-import se.kth.integral.oms.implementation.SavedSearchesImpl;
-import se.kth.integral.oms.models.SavedSearch;
-import se.kth.integral.oms.models.SavedSearchesListResult;
-import se.kth.integral.oms.models.SearchResultsResponse;
+import se.kth.integral.azure.opinsights.AzureLogAnalytics;
+import se.kth.integral.azure.opinsights.implementation.AzureLogAnalyticsImpl;
+import se.kth.integral.omstoelk.LogForwarder;
+import se.kth.integral.omstoelk.LogRetriever;
+import se.kth.integral.omstoelk.QueryRetriever;
 
-public class OMS {    
-    public static void main(String[] args) throws IOException, AdapterException  {
+public class OMS {
+    public static void main(String[] args) throws IOException, AdapterException, InterruptedException  {
         final Properties properties = new Properties();
         final InputStream stream = 
                 OMS.class.getClassLoader().getResourceAsStream("oms-to-elk.properties");
+
+        final Queue<JsonNode> queue = new ConcurrentLinkedQueue<JsonNode>();
+
         properties.load(stream);
         stream.close();
 
@@ -57,50 +55,31 @@ public class OMS {
                 .withSubscriptionId(properties.getProperty("azure.subscription"));
 
         String savedQueryString = properties.getProperty("oms-to-elk.saved_query").trim();
-        String queryName = "";
-        String queryCategory = "";
         if (savedQueryString.contains(":")) {
-            String[] savedQueryArr = savedQueryString.split(":");
-            queryCategory = savedQueryArr[0];
-            queryName = savedQueryArr[1];
-        } else {
-            queryName = savedQueryString;
+            savedQueryString = savedQueryString.replace(":", "|");
         }
 
-        SavedSearch savedSearch = null;
-        SavedSearchesListResult searches = ala.savedSearches().listByWorkspace(
-                properties.getProperty("azure.resource_group"),
-                properties.getProperty("azure.oms_workspace"));
-        for (SavedSearch search : searches.value()) {
-            if (queryCategory.equals(search.category().trim()) &&
-                    queryName.equals(search.displayName().trim())) {
-                savedSearch = search;
-            }
-        }
-        if (savedSearch == null) {
-            System.out.println("query: "+ queryCategory + ":" + queryName + " not found" );
-        }
-
-        SearchResultsResponse searchResults = ala.savedSearches().getResults(
+        QueryRetriever qr = new QueryRetriever(
+                ala.savedSearches(), 
                 properties.getProperty("azure.resource_group"),
                 properties.getProperty("azure.oms_workspace"),
-                savedSearch.category() + "|" + savedSearch.displayName());
-        System.out.println("Got hits: " + searchResults.value().size());
-        for (Object res : searchResults.value()) {
-            System.out.println(res);
-        }
-/*
-        ProtocolAdapter logstash = new LumberjackClient(
-                properties.getProperty("logstash.keystore"),
-                properties.getProperty("logstash.server"),
-                Integer.parseInt(properties.getProperty("logstash.port")),
-                10000);
+                properties.getProperty("oms-to-elk.saved_query"));
 
-        Event event = new Event();
-        event.addField("line", "{'v':0, 'msg':'test'}");
-        List<Event> events = new ArrayList<Event>();
-        events.add(event);
-        logstash.sendEvents(events);
-*/
+        LogRetriever lr = new LogRetriever(
+                ala.workspaces(),
+                properties.getProperty("azure.resource_group"),
+                properties.getProperty("azure.oms_workspace"),
+                qr,
+                queue);
+        
+        LogForwarder lf = new LogForwarder(
+                queue,
+                properties.getProperty("logstash.server"), 
+                Integer.valueOf(properties.getProperty("logstash.port")), 
+                properties.getProperty("logstash.keystore"));
+
+        new Thread(qr).start();
+        new Thread(lr).start();
+        new Thread(lf).start();
     }
 }
