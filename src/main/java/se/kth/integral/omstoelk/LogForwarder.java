@@ -46,43 +46,53 @@ public class LogForwarder implements Runnable {
 
     @Override
     public void run() {
+        boolean backoff = false;
+
         while (true) {
+            if (backoff) {
+                try {
+                    backoff = false;
+                    Thread.sleep(10000);
+                } catch (InterruptedException e1) {}
+            }
+
             try {
                 if (logstash == null) {
                     connect();
                 }
             } catch (Exception e) {
                 LOG.warn("Error connecting to logstash server: {}", e.getMessage());
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e1) {}
+                backoff = true;
                 continue;
             }
 
             List<Event> events = new ArrayList<Event>(100);
 
-            for (int i = 0; i <= 100; i++) {
-                JsonNode json = queue.poll();
-                if (json == null) {
-                    break;
-                }
-
+            for (int i = 0; i < 100; i++) {
                 try {
-                    Event event = new Event();
-                    event.addField("line", OM.writeValueAsString(json));
-                    events.add(event);
-                    logstash.sendEvents(events);
-                    LOG.debug("Sent {} messages.", events.size());
+                    JsonNode json = queue.poll();
+                    if (json == null) {
+                        backoff = true;
+                        break;
+                    }
+                    events.add(new Event().addField("line", OM.writeValueAsString(json)));
                 } catch (UnsupportedEncodingException | JsonProcessingException e) {
                     LOG.error("Failed to encode json: {}", e.getMessage());
-                } catch (AdapterException e) {
-                    LOG.warn("Error communicating with logstash server, retrying: {}", e.getMessage());
-                    try {
-                        logstash.close();
-                        Thread.sleep(1000);
-                    } catch (Exception e1) {
-                        logstash = null;
-                    }
+                }
+            }
+
+            try {
+                if (! events.isEmpty()) {
+                    logstash.sendEvents(events);
+                    LOG.debug("Sent {} messages.", events.size());
+                }
+            } catch (AdapterException e) {
+                LOG.warn("Error communicating with logstash server, retrying: {}", e.getMessage());
+                try {
+                    logstash.close();
+                    Thread.sleep(1000);
+                } catch (Exception e1) {
+                    logstash = null;
                 }
             }
         }
