@@ -1,8 +1,12 @@
 package se.kth.integral.omstoelk;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Queue;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +25,7 @@ public class LogForwarder implements Runnable {
     private final int port;
     private final String keystore;
 
+    private FileOutputStream out;
     private ProtocolAdapter logstash;
 
     public LogForwarder(Queue<JsonNode> queue, final String server, final int port, final String keystore) throws IOException {
@@ -36,6 +41,15 @@ public class LogForwarder implements Runnable {
         } catch (Exception e) {}
 
         this.logstash = new LumberjackClient(keystore, server, port, 10000);
+    }
+
+    private void storeTimestamp(String timestamp) throws IOException {
+        if (out == null) {
+            out = new FileOutputStream(new File("timestamp"));
+        }
+        out.getChannel().position(0);
+        out.write(timestamp.getBytes(), 0, timestamp.length());
+        out.flush();
     }
 
     @Override
@@ -55,12 +69,13 @@ public class LogForwarder implements Runnable {
                     if (! batch.getEvents().isEmpty()) {
                         logstash.sendEvents(batch.getEvents());
                         LOG.debug("Sent {} messages.", batch.getEvents().size());
+                        storeTimestamp(batch.getTimestamp().toString());
                     } else {
                         backoff = true;
                     }
                     success = true;
                 } catch (AdapterException | IOException e) {
-                    LOG.warn("Error communicating with logstash server, retrying: {}", e.getMessage());
+                    LOG.warn("Error sending log entries to logstash, retrying: {}", e.getMessage());
                     backoff = true;
                     try {
                         logstash.close();

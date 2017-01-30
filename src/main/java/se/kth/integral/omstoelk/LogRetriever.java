@@ -1,5 +1,11 @@
 package se.kth.integral.omstoelk;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Queue;
 
 import org.joda.time.DateTime;
@@ -40,8 +46,17 @@ public class LogRetriever implements Runnable {
 
     @Override
     public void run() {
-        DateTime lastTimestamp = DateTime.now().minusDays(1);
         boolean backoff = false;
+        int backtick = 10000;
+
+        DateTime lastTimestamp;
+        try {
+            lastTimestamp = DateTime.parse(new String(Files.readAllBytes(Paths.get("timestamp"))));
+        } catch (IOException e) {
+            lastTimestamp = DateTime.now();
+        }
+
+        LOG.info("Start retrieving log entries from {}", lastTimestamp);
 
         while (true) {
             if (backoff) {
@@ -59,14 +74,15 @@ public class LogRetriever implements Runnable {
             try {
                 DateTime now = DateTime.now();
                 SearchParameters parameters = new SearchParameters()
-                        .withTop(200L)
-                        .withStart(lastTimestamp)
+                        .withTop(100L)
+                        .withStart(lastTimestamp.minusMillis(backtick))
                         .withEnd(now)
                         .withQuery(queryRetriever.getSavedSearch().query());
                 SearchResultsResponse searchResults = 
                         workspaces.beginGetSearchResults(resourceGroup, workspace, parameters);
 
                 backoff = true;
+                backtick = 10000;
                 for (Object res : searchResults.value()) {
                     JsonNode json = OM.convertValue(res, JsonNode.class);
                     lastTimestamp = DateTime.parse(json.get("TimeGenerated").asText());
@@ -75,6 +91,7 @@ public class LogRetriever implements Runnable {
                         cache.put(id, json);
                         queue.add(json);
                         backoff = false;
+                        backtick = 0;
                     }
                 }
             } catch (Exception e) {

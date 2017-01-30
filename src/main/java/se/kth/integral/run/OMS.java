@@ -37,46 +37,39 @@ import se.kth.integral.omstoelk.QueryRetriever;
 
 public class OMS {
     public static void main(String[] args) throws IOException, AdapterException, InterruptedException  {
-        final Properties properties = new Properties();
-        final InputStream stream = 
-                OMS.class.getClassLoader().getResourceAsStream("oms-to-elk.properties");
-
         final Queue<JsonNode> queue = new ConcurrentLinkedQueue<JsonNode>();
 
+        final Properties properties = new Properties();
+        final InputStream stream =  OMS.class.getClassLoader().getResourceAsStream("oms-to-elk.properties");
         properties.load(stream);
         stream.close();
 
         ServiceClientCredentials credentials = new ApplicationTokenCredentials(
-                properties.getProperty("azure.clientId"),
-                properties.getProperty("azure.tenantId"),
-                properties.getProperty("azure.clientKey"),
+                properties.getProperty("azure.clientId").trim(),
+                properties.getProperty("azure.tenantId").trim(),
+                properties.getProperty("azure.clientKey").trim(),
                 AzureEnvironment.AZURE);
         AzureLogAnalytics ala = new AzureLogAnalyticsImpl(credentials)
-                .withSubscriptionId(properties.getProperty("azure.subscription"));
-
-        String savedQueryString = properties.getProperty("oms-to-elk.saved_query").trim();
-        if (savedQueryString.contains(":")) {
-            savedQueryString = savedQueryString.replace(":", "|");
-        }
+                .withSubscriptionId(properties.getProperty("azure.subscription").trim());
 
         QueryRetriever qr = new QueryRetriever(
                 ala.savedSearches(), 
-                properties.getProperty("azure.resource_group"),
-                properties.getProperty("azure.oms_workspace"),
-                properties.getProperty("oms-to-elk.saved_query"));
+                properties.getProperty("azure.resource_group").trim(),
+                properties.getProperty("azure.oms_workspace").trim(),
+                properties.getProperty("oms-to-elk.saved_query").trim());
 
         LogRetriever lr = new LogRetriever(
                 ala.workspaces(),
-                properties.getProperty("azure.resource_group"),
-                properties.getProperty("azure.oms_workspace"),
+                properties.getProperty("azure.resource_group").trim(),
+                properties.getProperty("azure.oms_workspace").trim(),
                 qr,
                 queue);
         
         LogForwarder lf = new LogForwarder(
                 queue,
-                properties.getProperty("logstash.server"), 
-                Integer.valueOf(properties.getProperty("logstash.port")), 
-                properties.getProperty("logstash.keystore"));
+                properties.getProperty("logstash.server").trim(), 
+                Integer.valueOf(properties.getProperty("logstash.port").trim()), 
+                properties.getProperty("logstash.keystore").trim());
 
         new Thread(qr).start();
         new Thread(lr).start();
