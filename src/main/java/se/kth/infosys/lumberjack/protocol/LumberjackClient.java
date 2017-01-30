@@ -243,4 +243,7 @@ public class LumberjackClient implements ProtocolAdapter {
         return port;
     }
 
+    public boolean isConnected() {
+        return sslSocket != null && sslSocket.isConnected();
+    }
 }

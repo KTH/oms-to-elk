@@ -37,19 +37,20 @@ public class QueryRetriever implements Runnable {
 
                 if (savedSearch == null && res == null) {
                     LOG.info("Query not intiailized yet, waiting 10s");
-                    Thread.sleep(10 * 1000);
-                    continue;
-                }
-
-                if (savedSearch == null) {
+                } else if (savedSearch == null) {
                     LOG.info("Initialized query: " + query);
                     savedSearch = res;
-                } else if (savedSearch.query().equals(res.query())) {
+                } else if (! savedSearch.query().equals(res.query())) {
                     LOG.info("Got new query: " + query);
+                    savedSearch = res;
                 }
+            } catch (Exception e) {
+                LOG.warn("Error setting query: {}, retrying", e);
+            }
 
+            try {
                 Thread.sleep(600 * 1000);
-            } catch (InterruptedException e1) {}
+            } catch (Exception e) {}
         }
     }
 

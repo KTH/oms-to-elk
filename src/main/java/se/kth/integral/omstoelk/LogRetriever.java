@@ -16,6 +16,8 @@ import se.kth.integral.azure.opinsights.models.SearchResultsResponse;
 public class LogRetriever implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(QueryRetriever.class);
     private static final ObjectMapper OM = new ObjectMapper();
+    private static final FifoCache<String, JsonNode> cache = new FifoCache<String, JsonNode>();
+
 
     private final QueryRetriever queryRetriever;
     private final Workspaces workspaces;
@@ -38,30 +40,46 @@ public class LogRetriever implements Runnable {
 
     @Override
     public void run() {
+        DateTime lastTimestamp = DateTime.now().minusDays(1);
+        boolean backoff = false;
+
         while (true) {
-            if (queryRetriever.getSavedSearch() == null) {
+            if (backoff) {
                 try {
-                    Thread.sleep(1000);
+                    backoff = false;
+                    Thread.sleep(10000);
                 } catch (InterruptedException e) {}
+            }
+
+            if (queryRetriever.getSavedSearch() == null) {
+                backoff = true;
                 continue;
             }
 
-            DateTime starttime = DateTime.now();
-            SearchParameters parameters = new SearchParameters()
-                    .withTop(100L)
-                    .withStart(starttime.minusDays(1))
-                    .withEnd(starttime)
-                    .withQuery(queryRetriever.getSavedSearch().query());
-            SearchResultsResponse searchResults = 
-                    workspaces.beginGetSearchResults(resourceGroup, workspace, parameters);
-            LOG.debug("Got {} hits", searchResults.value().size());
-
-            for (Object res : searchResults.value()) {
-                queue.add(OM.convertValue(res, JsonNode.class));
-            }
             try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {}
+                DateTime now = DateTime.now();
+                SearchParameters parameters = new SearchParameters()
+                        .withTop(200L)
+                        .withStart(lastTimestamp)
+                        .withEnd(now)
+                        .withQuery(queryRetriever.getSavedSearch().query());
+                SearchResultsResponse searchResults = 
+                        workspaces.beginGetSearchResults(resourceGroup, workspace, parameters);
+
+                backoff = true;
+                for (Object res : searchResults.value()) {
+                    JsonNode json = OM.convertValue(res, JsonNode.class);
+                    lastTimestamp = DateTime.parse(json.get("TimeGenerated").asText());
+                    String id = json.get("id").asText();
+                    if (!cache.containsKey(id)) {
+                        cache.put(id, json);
+                        queue.add(json);
+                        backoff = false;
+                    }
+                }
+            } catch (Exception e) {
+                LOG.warn("Error while getting log entries, retrying: {}", e.getMessage(), e);
+            }
         }
     }
 }

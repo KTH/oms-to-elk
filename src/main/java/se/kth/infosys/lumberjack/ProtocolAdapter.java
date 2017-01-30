@@ -27,4 +27,5 @@ public interface ProtocolAdapter {
     public void close() throws AdapterException;
     public String getServer();
     public int getPort();
+    public boolean isConnected();
 }
