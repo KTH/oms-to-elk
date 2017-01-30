@@ -98,7 +98,7 @@ public class LumberjackClient implements ProtocolAdapter {
             output = new DataOutputStream(new BufferedOutputStream(sslSocket.getOutputStream()));
             input = new DataInputStream(sslSocket.getInputStream());
 
-            logger.info("Connected to " + server + ":" + port);
+            logger.info("Connected to {}:{}", server, port);
         } catch(IOException e) {
             throw e;
         } catch(Exception e) {
@@ -111,9 +111,7 @@ public class LumberjackClient implements ProtocolAdapter {
         output.writeByte(FRAME_WINDOW_SIZE);
         output.writeInt(size);
         output.flush();
-        if(logger.isDebugEnabled()) {
-            logger.debug("Sending window size frame : " + size + " frames");
-        }
+        logger.trace("Sending window size frame: {} frames", size);
         return 6;
     }
 
@@ -156,10 +154,8 @@ public class LumberjackClient implements ProtocolAdapter {
         uncompressedOutput.close();
         Deflater compressor = new Deflater();
         byte[] uncompressedData = uncompressedBytes.toByteArray();
-        if(logger.isDebugEnabled()) {
-            logger.debug("Deflating data : " + uncompressedData.length + " bytes");
-        }
-        if(logger.isTraceEnabled()) {
+        logger.trace("Deflating data: {} bytes", uncompressedData.length);
+        if (logger.isTraceEnabled()) {
             HexDump.dump(uncompressedData, 0, System.out, 0);
         }
         compressor.setInput(uncompressedData);
@@ -173,10 +169,8 @@ public class LumberjackClient implements ProtocolAdapter {
         }
         compressedBytes.close();
         byte[] compressedData = compressedBytes.toByteArray();
-        if(logger.isDebugEnabled()) {
-            logger.debug("Deflated data : " + compressor.getTotalOut() + " bytes");
-        }
-        if(logger.isTraceEnabled()) {
+        logger.trace("Deflated data: {} bytes", compressor.getTotalOut());
+        if (logger.isTraceEnabled()) {
             HexDump.dump(compressedData, 0, System.out, 0);
         }
 
@@ -184,15 +178,13 @@ public class LumberjackClient implements ProtocolAdapter {
         output.write(compressedData);
         output.flush();
 
-        if(logger.isDebugEnabled()) {
-            logger.debug("Sending compressed frame : " + keyValuesList.size() + " frames");
-        }
+        logger.trace("Sending compressed frame: {} frames", keyValuesList.size());
         return 6 + compressor.getTotalOut();
     }
 
     public int readAckFrame() throws ProtocolException, IOException {
         byte protocolVersion = input.readByte();
-        if(protocolVersion != PROTOCOL_VERSION) {
+        if (protocolVersion != PROTOCOL_VERSION) {
             throw new ProtocolException("Protocol version should be 1, received " + protocolVersion);
         }
         byte frameType = input.readByte();
@@ -200,9 +192,7 @@ public class LumberjackClient implements ProtocolAdapter {
             throw new ProtocolException("Frame type should be Ack, received " + frameType);
         }
         int sequenceNumber = input.readInt();
-        if(logger.isDebugEnabled()) {
-            logger.debug("Received ack sequence : " + sequenceNumber);
-        }
+        logger.trace("Received ack sequence: {}", sequenceNumber);
         return sequenceNumber;
     }
 
@@ -210,9 +200,7 @@ public class LumberjackClient implements ProtocolAdapter {
         try {
             int beginSequence = sequence;
             int numberOfEvents = eventList.size();
-            if(logger.isInfoEnabled()) {
-                logger.info("Sending " + numberOfEvents + " events");
-            }
+            logger.debug("Sending {} events", numberOfEvents);
             sendWindowSizeFrame(numberOfEvents);
             List<Map<String,byte[]>> keyValuesList = new ArrayList<Map<String,byte[]>>(numberOfEvents);
             for(Event event : eventList) {
@@ -232,7 +220,7 @@ public class LumberjackClient implements ProtocolAdapter {
         } catch(Exception e) {
             throw new AdapterException(e);
         }
-        logger.info("Connection to " + server + ":" + port + " closed");
+        logger.info("Connection to {}:{} closed", server, port);
     }
 
     public String getServer() {
