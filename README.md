@@ -8,14 +8,17 @@ A tool to forward logs from OMS to Logstash.
 
 Overview of required settings.
 
+(Note: these can be set in a number of ways now, including using Docker 1.13 secrets management and
+use of a mounted volume containing corresponding properties files, this needs to be documented).
+
 | Variable | Description |
 |----------|-------------|
 | AZURE_SUBSCRIPTION_ID | The UUID of your Azure subscription. Looks like xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx |
 | AZURE_RESOURCE_GROUP | The name of your resource group. |
 | AZURE_OMS_WORKSPACE | The name of your OMS workspace. |
-| OMS_ELK_TENANTID | The UUID of the "tenant" for Oauth client authentication to Azure. |
-| OMS_ELK_CLIENTID | The UUID of the oms-to-elk client to authenticate to Azure with. |
-| OMS_ELK_CLIENTKEY | The key corresponding to the UUID above. |
+| AZURE_TENANTID | The UUID of the "tenant" for Oauth client authentication to Azure. |
+| AZURE_CLIENTID | The UUID of the oms-to-elk client to authenticate to Azure with. |
+| AZURE_CLIENTKEY | The key corresponding to the UUID above. |
 | LOGSTASH_SERVER | The name of the logstash host |
 | LOGSTASH_PORT | The logstash port number to use |
 
