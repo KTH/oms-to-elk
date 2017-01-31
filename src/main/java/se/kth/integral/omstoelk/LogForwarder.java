@@ -18,6 +18,7 @@ public class LogForwarder implements Runnable {
     private static final int BATCH_SIZE = 100;
     private static final Logger LOG = LoggerFactory.getLogger(LogForwarder.class);
 
+    private final Statistics statistics;
     private final Queue<JsonNode> queue;
     private final String server;
     private final int port;
@@ -26,7 +27,8 @@ public class LogForwarder implements Runnable {
     private FileOutputStream out;
     private ProtocolAdapter logstash;
 
-    public LogForwarder(Queue<JsonNode> queue, final String server, final int port, final String keystore) throws IOException {
+    public LogForwarder(Statistics statistics, Queue<JsonNode> queue, final String server, final int port, final String keystore) throws IOException {
+        this.statistics = statistics;
         this.queue = queue;
         this.server = server;
         this.port = port;
@@ -48,6 +50,7 @@ public class LogForwarder implements Runnable {
         out.getChannel().position(0);
         out.write(timestamp.getBytes(), 0, timestamp.length());
         out.flush();
+        statistics.currentTimestamp = timestamp;
     }
 
     @Override
@@ -67,8 +70,10 @@ public class LogForwarder implements Runnable {
                     if (! batch.getEvents().isEmpty()) {
                         logstash.sendEvents(batch.getEvents());
                         LOG.debug("Sent {} messages.", batch.getEvents().size());
+                        statistics.addCount(batch.getEvents().size());
                         storeTimestamp(batch.getTimestamp().toString());
                     } else {
+                        statistics.addCount(0);
                         backoff = true;
                     }
                     success = true;

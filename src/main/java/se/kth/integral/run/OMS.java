@@ -22,6 +22,9 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.microsoft.azure.AzureEnvironment;
@@ -34,6 +37,8 @@ import se.kth.integral.azure.opinsights.implementation.AzureLogAnalyticsImpl;
 import se.kth.integral.omstoelk.LogForwarder;
 import se.kth.integral.omstoelk.LogRetriever;
 import se.kth.integral.omstoelk.QueryRetriever;
+import se.kth.integral.omstoelk.Statistics;
+import se.kth.integral.omstoelk.StatisticsLogger;
 
 public class OMS {
     public static void main(String[] args) throws IOException, AdapterException, InterruptedException  {
@@ -44,6 +49,11 @@ public class OMS {
         properties.load(stream);
         stream.close();
 
+        final Statistics statistics = new Statistics();
+        StatisticsLogger sl = new StatisticsLogger(statistics);
+        final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(sl, 1, 1, TimeUnit.MINUTES);
+
         ServiceClientCredentials credentials = new ApplicationTokenCredentials(
                 properties.getProperty("azure.clientId").trim(),
                 properties.getProperty("azure.tenantId").trim(),
@@ -53,6 +63,7 @@ public class OMS {
                 .withSubscriptionId(properties.getProperty("azure.subscription").trim());
 
         QueryRetriever qr = new QueryRetriever(
+                statistics,
                 ala.savedSearches(), 
                 properties.getProperty("azure.resource_group").trim(),
                 properties.getProperty("azure.oms_workspace").trim(),
@@ -66,6 +77,7 @@ public class OMS {
                 queue);
         
         LogForwarder lf = new LogForwarder(
+                statistics,
                 queue,
                 properties.getProperty("logstash.server").trim(), 
                 Integer.valueOf(properties.getProperty("logstash.port").trim()), 

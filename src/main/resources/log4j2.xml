@@ -24,6 +24,10 @@
 -->
 <Configuration packages="se.kth.infosys.log4j">
   <Appenders>
+    <Console name="statistics" target="SYSTEM_OUT">
+      <PatternLayout pattern="%m%n"/>
+    </Console>
+
     <Console name="stdout" target="SYSTEM_OUT">
       <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="ACCEPT"/>
       <BunyanLayout/>
@@ -41,6 +45,10 @@
     </RollingFile>
   </Appenders>
   <Loggers>
+    <Logger name="se.kth.integral.omstoelk.StatisticsLogger" level="INFO" additivity="false">
+      <AppenderRef ref="statistics"/>
+    </Logger>
+
     <Logger name="se.kth.integral" level="DEBUG"/>
 
     <Root level="INFO">
