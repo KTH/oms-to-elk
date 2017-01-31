@@ -4,6 +4,32 @@ A tool to forward logs from OMS to Logstash.
 
 ## Configuration
 
+### Environment configuration
+
+Overview of required settings.
+
+(Note: these can be set in a number of ways now, including using Docker 1.13 secrets management and
+use of a mounted volume containing corresponding properties files, this needs to be documented).
+
+| Variable | Description |
+|----------|-------------|
+| AZURE_SUBSCRIPTION_ID | The UUID of your Azure subscription. Looks like xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx |
+| AZURE_RESOURCE_GROUP | The name of your resource group. |
+| AZURE_OMS_WORKSPACE | The name of your OMS workspace. |
+| AZURE_TENANTID | The UUID of the "tenant" for Oauth client authentication to Azure. |
+| AZURE_CLIENTID | The UUID of the oms-to-elk client to authenticate to Azure with. |
+| AZURE_CLIENTKEY | The key corresponding to the UUID above. |
+| LOGSTASH_SERVER | The name of the logstash host |
+| LOGSTASH_PORT | The logstash port number to use |
+
+Optional settings.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| LOGSTASH_KEYSTORE | oms-to-elk.keystore | The name of the keystore file to look for, not a path |
+| OMS_ELK_SAVED_QUERY | oms-to-elk:Default | The category and name of the keystore file to look for, not a path |
+
+
 ### OMS
 
 The node client uses the "client credentials type" Oauth2 authentication when 
@@ -86,84 +112,50 @@ output {
 
 ### Certificates and persistence of timestamp
 
-The client needs certificates to authenticate to logstash. The path and name 
-of the certificate is defined by LOGSTASH_CERT_PATH (see below), and the 
-corresponding key by LOGSTASH_KEY_PATH. You can provide this by a volume mount
-of some place containing the file.
+The client needs a certificate to authenticate to logstash. These have to
+be stored into a keystore. There is plenty of information on the webb on
+how to acheive this given different certificates. The keystore is pointed
+out by LOGSTASH_KEYSTORE (default `oms-to-elk.keystore` see above). This
+keystore will be sought on the class path, making it possible to supply
+this given a volume mount for /opt/data, or in /run/secrets via the 
+mechanism available since Docker 1.13.
 
-Currently there is assumed a ca.crt file used to verify the server identity,
-defined by LOGSTASH_CA_PATH. However I've not quite figured that one out yet,
-so server verification is disabled. The file is still expected to exist though.
+Chances are that you will also have to add the logstash server certificate
+to the keystore and trust it. It seems difficult to get logstash to provide
+a proper chain.
 
-The client stores a timestamp for the last seen log entry, the path and name
-is defined by OMS_ELK_TIMESTAMP_PATH. If you want to persist it, e.g. to make
-it available on many hosts in a swarm environment, make a volume mount for it.
-The file will be created if it does not exist.
-
-
-### Environment configuration
-
-Required settings.
-
-| Variable | Description |
-|----------|-------------|
-| AZURE_SUBSCRIPTION_ID | The UUID of your Azure subscription. Looks like xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx |
-| AZURE_RESOURCE_GROUP | The name of your resource group. |
-| OMS_WORKSPACE | The name of your OMS workspace. |
-| OMS_ELK_TENANTID | The UUID of the "tenant" for Oauth client authentication to Azure. |
-| OMS_ELK_CLIENTID | The UUID of the oms-to-elk client to authenticate to Azure with. |
-| OMS_ELK_CLIENTKEY | The key corresponding to the UUID above. |
-| LOGSTASH_SERVER_URL | A URI to the logstash host. Protocol is ignored, only host and port information is used. E.g. logstash://localhost:5000 |
-
-Optional settings, mainly tuning.
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| OMS_ELK_START_DATE | none | If set, and no stored timestamp is found, start from this timestamp in ISO 8601 format. | 
-| LOGGING_LEVEL | info | Logging level. More information will be printed if set to debug. |
-| OMS_SAVED_QUERY | oms-to-elk\|Default | The name of the saved query in OMS to use. |
-| OMS_OMS_SAVED_SEARCH_SCHEDULE | */20 * * * * * | When to check if query changed, default every 20 minutes. |
-| LOG_QUERY_SCHEDULE | */20 * * * * | When to check for new log entries, default every 20 seconds. |
-| OMS_STATISTICS_SCHEDULE | * * * * * | When to print a statistics log, default every minute. |
-| LOGSTASH_CERT_PATH | /opt/data/client.crt | The path to the PEM certificate to authenticate to logstash with. |
-| LOGSTASH_KEY_PATH | /opt/data/client.key | The path to the PEM key for the certificate file. |
-| LOGSTASH_CA_PATH | /opt/data/ca.crt | The path to the PEM ca file to use when verifying server. |
-| OMS_ELK_TIMESTAMP_PATH | /opt/data/timestamp.json | The path to the persisted timestamp. |
-| OMS_QUERY_BATCH_SIZE | 200 | The maximum number of items to fetch from OMS in one poll. |
-| OMS_ELK_CACHE_SIZE | 1000 | How many log entry ids we keep track of. |
-| OMS_ELK_MAX_QUEUE_SIZE | 1000 | How many messages to keep in memory while waiting for logstash server before dropping messages. |
-| OMS_ELK_BACK_TICK | 10000 | A number of milliseconds we remove from timestamp in each poll in case OMS indexed some entry late. |
-| OMS_ELK_KEEPALIVE | 60000 | Set keep-alive in ms on logstash socket. A value of 0 disables keep-alive. |
-| OMS_ELK_REJECT_UNAUTHORIZED | true | Set to false to disable TLS verification of server. |
-
-For details on format for scheduling options, see https://www.npmjs.com/package/node-schedule
-
-### Tuning considerations
-
-There are dependencies between settings of OMS_QUERY_BATCH_SIZE and OMS_ELK_BACK_TICK in particular.
-If you recieve more than OMS_QUERY_BATCH_SIZE messages within the time frame set by OMS_ELK_BACK_TICK,
-the forwarder will get stuck and not be able to get past that time stamp.
-
-OMS_ELK_CACHE_SIZE should be larger than OMS_QUERY_BATCH_SIZE, but if you set the document_id in the 
-elasticsearch logstash output as described here, it is not critical.
-
-OMS_ELK_MAX_QUEUE_SIZE should be larger than the number of messages handled in one poll, OMS_QUERY_BATCH_SIZE.
-
-## Running
-
-Given a file environment containing environment variables as mentioned above, the image can be
-run with docker run as in this example. There is a template available in environment.in.
-
-```
-docker run --env-file=environment --net=<some net> -v /some/path:/opt/data --kthse/oms-to-elk:latest
-```
-
-Given that the certificate files as mentioned above, as well as the timestamp file, are 
-kept in the read-write directory /some/path.
+The client stores a timestamp for the last seen log entry, in /opt/data/timestamp.
+If you want to persist it, e.g. to make it available on many hosts in a
+swarm environment, make a volume mount for it. The file will be created
+if it does not exist.
 
 ## Development
 
-### Running an ELK docker container
+The client code for operational insights (OMS) is autogenerated from the
+swagger definition (https://github.com/Azure/azure-rest-api-specs) 
+using autorest (https://github.com/Azure/autorest). Use the most recent
+version of autorest. Generally that means installing wuth nuget.
 
-In the `elk` folder there is a helper script and configuration to run a docker
-image with logstash and json codec enabled on input for development.
+### Getting with nuget on Mac
+
+Nuget can be run using mono on Mac OS X and it all can be retrieved with
+Homebrew (http://brew.sh/)
+
+```
+brew install mono nuget
+nuget install autorest
+```
+
+The autorest executable is then found in `AutoRest.0.17.3/tools/`
+
+### Using Autorest to generate sources.
+
+```
+mono AutoRest.exe \
+    --Namespace se.kth.integral.oms \
+    -Input .../azure-rest-api-specs/arm-operationalinsights/2015-03-20/swagger/OperationalInsights.json \
+    -CodeGenerator Azure.Java \
+    -Modeler Swagger
+```
+
+The code is then found in the `Generated` folder. Move it to the destination.
