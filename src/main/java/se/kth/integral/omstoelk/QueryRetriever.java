@@ -37,13 +37,13 @@ public class QueryRetriever implements Runnable {
                 SavedSearch res = client.get(resourceGroup, workspace, query);
 
                 if (savedSearch == null && res == null) {
-                    LOG.info("Query not intiailized yet, waiting 10s");
+                    LOG.info("Query {} not intiailized yet, waiting 10s", query);
                 } else if (savedSearch == null) {
-                    LOG.info("Initialized query: " + query);
+                    LOG.info("Initialized query: {}: {}", query, res.query());
                     savedSearch = res;
                     statistics.query = res.query();
                 } else if (! savedSearch.query().equals(res.query())) {
-                    LOG.info("Got new query: " + query);
+                    LOG.info("Got new query: {}: {}", query, res.query());
                     savedSearch = res;
                     statistics.query = res.query();
                 }
@@ -52,7 +52,11 @@ public class QueryRetriever implements Runnable {
             }
 
             try {
-                Thread.sleep(600 * 1000);
+                if (savedSearch == null) {
+                    Thread.sleep(10 * 1000);
+                } else {
+                    Thread.sleep(600 * 1000);
+                }
             } catch (Exception e) {}
         }
     }

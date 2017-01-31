@@ -38,7 +38,9 @@
       <BunyanLayout/>
     </Console>
 
-    <RollingFile name="file" fileName="oms-to-elk.log" filePattern="oms-to-elk.log.%i">
+    <RollingFile name="file" 
+        fileName="/opt/oms-to-elk/oms-to-elk.log"
+        filePattern="/opt/oms-to-elk/oms-to-elk-%i.log">
       <SizeBasedTriggeringPolicy size="10MB"/>
       <DefaultRolloverStrategy max="5"/>
       <PatternLayout pattern="%d | %-5p | %.30c | %m | %t%n"/>
@@ -48,8 +50,6 @@
     <Logger name="se.kth.integral.omstoelk.StatisticsLogger" level="INFO" additivity="false">
       <AppenderRef ref="statistics"/>
     </Logger>
-
-    <Logger name="se.kth.integral" level="DEBUG"/>
 
     <Root level="INFO">
       <AppenderRef ref="stdout"/>

@@ -18,41 +18,38 @@
 
 set -e
 
-cat << eof > oms-to-elk.properties
+cat << eof > azure.properties
 # Azure OMS connection details
-azure.clientId="${OMS_ELK_CLIENTID}"
-azure.tenantId="${OMS_ELK_CLIENTID}"
-azure.clientKey="${OMS_ELK_CLIENTKEY}"
-azure.subscription="${AZURE_SUBSCRIPTION_ID}"
-azure.resource_group="${AZURE_RESOURCE_GROUP}"
-azure.oms_workspace="${AZURE_OMS_WORKSPACE}"
-# Logstash server connection details
-logstash.keystore="${LOGSTASH_KEYSTORE}"
-logstash.server="${LOGSTASH_SERVER}"
-logstash.port="${LOGSTASH_PORT}"
-# oms-to-elk configurations
-oms-to-elk.saved_query="${OMS_ELK_SAVED_QUERY}"
-
+resource_group=${AZURE_RESOURCE_GROUP}
+oms_workspace=${AZURE_WORKSPACE}
+clientId=${AZURE_CLIENTID}
+tenantId=${AZURE_TENANTID}
+clientKey=${AZURE_CLIENTKEY}
+subscription=${AZURE_SUBSCRIPTION_ID}
 eof
 
-if [ ! -f /opt/data/timestamp.json ]; then
+cat << eof > logstash.properties
+# Logstash server connection details
+keystore=${LOGSTASH_KEYSTORE}
+server=${LOGSTASH_SERVER}
+port=${LOGSTASH_PORT}
+eof
+
+cat << eof > oms-to-elk.properties
+# oms-to-elk configurations
+saved_query=${OMS_ELK_SAVED_QUERY}
+eof
+
+if [ ! -f "timestamp" ]; then
     case "${OMS_ELK_START_DATE:-'NOW'}" in
         ^[0-9][0-9TZ:-]*)
-            echo "startdate=${OMS_ELK_START_DATE}" > /opt/data/timestamp.properties
-            ;;
-        *)
-            echo "startdate=" > /opt/data/timestamp.properties
+            echo "${OMS_ELK_START_DATE}" > timestamp
             ;;
     esac
 fi
 
-while [ ! -f /opt/data/timestamp.properties ]; do
-    echo "/opt/data/timestamp.properties not found, waiting 30s..."
-    sleep 30
-done
-
 if [ "$*" = "start" ]; then
-    exec java -cp /run/secrets:/opt/data -jar application.jar
+    exec java -cp /run/secrets:/opt/data:/opt/oms-to-elk/application.jar se.kth.integral.omstoelk.Run
 fi
 
 exec $*

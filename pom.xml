@@ -131,7 +131,7 @@
             <configuration>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>se.kth.integral.run.OMS</mainClass>
+                  <mainClass>se.kth.integral.omstoelk.Run</mainClass>
                 </transformer>
               </transformers>
               <filters>

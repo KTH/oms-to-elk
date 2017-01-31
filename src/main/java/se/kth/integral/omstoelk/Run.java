@@ -1,4 +1,4 @@
-package se.kth.integral.run;
+package se.kth.integral.omstoelk;
 
 /*
  * Copyright (c) 2017 Kungliga Tekniska högskolan
@@ -34,19 +34,26 @@ import com.microsoft.rest.credentials.ServiceClientCredentials;
 import se.kth.infosys.lumberjack.util.AdapterException;
 import se.kth.integral.azure.opinsights.AzureLogAnalytics;
 import se.kth.integral.azure.opinsights.implementation.AzureLogAnalyticsImpl;
-import se.kth.integral.omstoelk.LogForwarder;
-import se.kth.integral.omstoelk.LogRetriever;
-import se.kth.integral.omstoelk.QueryRetriever;
-import se.kth.integral.omstoelk.Statistics;
-import se.kth.integral.omstoelk.StatisticsLogger;
 
-public class OMS {
+public class Run {
     public static void main(String[] args) throws IOException, AdapterException, InterruptedException  {
         final Queue<JsonNode> queue = new ConcurrentLinkedQueue<JsonNode>();
 
-        final Properties properties = new Properties();
-        final InputStream stream =  OMS.class.getClassLoader().getResourceAsStream("oms-to-elk.properties");
-        properties.load(stream);
+        final ClassLoader loader = Run.class.getClassLoader();
+
+        InputStream stream =  loader.getResourceAsStream("oms-to-elk.properties");
+        final Properties omsToElkProperties = new Properties();
+        omsToElkProperties.load(stream);
+        stream.close();
+
+        stream = loader.getResourceAsStream("azure.properties");
+        final Properties azureProperties = new Properties();
+        azureProperties.load(stream);
+        stream.close();
+
+        stream = loader.getResourceAsStream("logstash.properties");
+        final Properties logstashProperties = new Properties();
+        logstashProperties.load(stream);
         stream.close();
 
         final Statistics statistics = new Statistics();
@@ -55,33 +62,33 @@ public class OMS {
         scheduler.scheduleAtFixedRate(sl, 1, 1, TimeUnit.MINUTES);
 
         ServiceClientCredentials credentials = new ApplicationTokenCredentials(
-                properties.getProperty("azure.clientId").trim(),
-                properties.getProperty("azure.tenantId").trim(),
-                properties.getProperty("azure.clientKey").trim(),
+                azureProperties.getProperty("clientId").trim(),
+                azureProperties.getProperty("tenantId").trim(),
+                azureProperties.getProperty("clientKey").trim(),
                 AzureEnvironment.AZURE);
         AzureLogAnalytics ala = new AzureLogAnalyticsImpl(credentials)
-                .withSubscriptionId(properties.getProperty("azure.subscription").trim());
+                .withSubscriptionId(azureProperties.getProperty("subscription").trim());
 
         QueryRetriever qr = new QueryRetriever(
                 statistics,
                 ala.savedSearches(), 
-                properties.getProperty("azure.resource_group").trim(),
-                properties.getProperty("azure.oms_workspace").trim(),
-                properties.getProperty("oms-to-elk.saved_query").trim());
+                azureProperties.getProperty("resource_group").trim(),
+                azureProperties.getProperty("oms_workspace").trim(),
+                omsToElkProperties.getProperty("saved_query").trim());
 
         LogRetriever lr = new LogRetriever(
                 ala.workspaces(),
-                properties.getProperty("azure.resource_group").trim(),
-                properties.getProperty("azure.oms_workspace").trim(),
+                azureProperties.getProperty("resource_group").trim(),
+                azureProperties.getProperty("oms_workspace").trim(),
                 qr,
                 queue);
         
         LogForwarder lf = new LogForwarder(
                 statistics,
                 queue,
-                properties.getProperty("logstash.server").trim(), 
-                Integer.valueOf(properties.getProperty("logstash.port").trim()), 
-                properties.getProperty("logstash.keystore").trim());
+                logstashProperties.getProperty("server").trim(), 
+                Integer.valueOf(logstashProperties.getProperty("port").trim()), 
+                logstashProperties.getProperty("keystore").trim());
 
         new Thread(qr).start();
         new Thread(lr).start();
