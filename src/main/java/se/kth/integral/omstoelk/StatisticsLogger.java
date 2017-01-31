@@ -18,7 +18,10 @@ public class StatisticsLogger implements Runnable {
     @Override
     public void run() {
         try {
-            LOG.info(OM.writeValueAsString(statistics));
+            synchronized (this) {
+                LOG.info(OM.writeValueAsString(statistics));
+                statistics.addCount(0);
+            }
         } catch (JsonProcessingException e) {
             LOG.error("Failed to log statistics: {}", e.getMessage(), e);
         }

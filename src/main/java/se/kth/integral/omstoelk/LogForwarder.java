@@ -24,7 +24,7 @@ public class LogForwarder implements Runnable {
     private final int port;
     private final String keystore;
 
-    private FileOutputStream out;
+    private FileOutputStream timestampFile;
     private ProtocolAdapter logstash;
 
     public LogForwarder(Statistics statistics, Queue<JsonNode> queue, final String server, final int port, final String keystore) throws IOException {
@@ -43,14 +43,19 @@ public class LogForwarder implements Runnable {
         this.logstash = new LumberjackClient(keystore, server, port, 10000);
     }
 
-    private void storeTimestamp(String timestamp) throws IOException {
-        if (out == null) {
-            out = new FileOutputStream(new File("timestamp"));
+    private void storeTimestamp(String timestamp) {
+        try {
+            if (timestampFile == null) {
+                timestampFile = new FileOutputStream(new File("timestamp"));
+            }
+            timestampFile.getChannel().position(0);
+            timestampFile.write(timestamp.getBytes(), 0, timestamp.length());
+            timestampFile.flush();
+            statistics.currentTimestamp = timestamp;
+        } catch (IOException e) {
+            LOG.error("Error saving timestamp: {}", e.getMessage(), e);
+            timestampFile = null;
         }
-        out.getChannel().position(0);
-        out.write(timestamp.getBytes(), 0, timestamp.length());
-        out.flush();
-        statistics.currentTimestamp = timestamp;
     }
 
     @Override
@@ -73,7 +78,6 @@ public class LogForwarder implements Runnable {
                         statistics.addCount(batch.getEvents().size());
                         storeTimestamp(batch.getTimestamp().toString());
                     } else {
-                        statistics.addCount(0);
                         backoff = true;
                     }
                     success = true;
