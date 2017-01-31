@@ -17,6 +17,8 @@ import se.kth.integral.azure.opinsights.models.SearchParameters;
 import se.kth.integral.azure.opinsights.models.SearchResultsResponse;
 
 public class LogRetriever implements Runnable {
+    private static final int LOOK_BEHIND_FOR_LATE_INDEX_TIME = 10000;
+    private static final int BACKOFF_SLEEP_TIME = 10000;
     private static final Logger LOG = LoggerFactory.getLogger(QueryRetriever.class);
     private static final ObjectMapper OM = new ObjectMapper();
     private static final FifoCache<String, JsonNode> cache = new FifoCache<String, JsonNode>();
@@ -44,7 +46,7 @@ public class LogRetriever implements Runnable {
     @Override
     public void run() {
         boolean backoff = false;
-        int backtick = 10000;
+        int backtick = LOOK_BEHIND_FOR_LATE_INDEX_TIME;
 
         DateTime lastTimestamp;
         try {
@@ -59,7 +61,7 @@ public class LogRetriever implements Runnable {
             if (backoff) {
                 try {
                     backoff = false;
-                    Thread.sleep(10000);
+                    Thread.sleep(BACKOFF_SLEEP_TIME);
                 } catch (InterruptedException e) {}
             }
 
