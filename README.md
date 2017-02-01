@@ -4,30 +4,50 @@ A tool to forward logs from OMS to Logstash.
 
 ## Configuration
 
+The application starts with the class path `/run/secrets:/opt/data:/opt/oms-to-elk`, allowing
+for a number of options on how to configure the application.
+
+1. You can use environment variables, which is used to create properties files in /opt/oms-to-elk.
+1. You can instead choose to use properties in either /opt/data, which can be made a volume
+   mount to some shared area.
+1. Or you can use properties files in /run/secrets, using the new mechanism for secrets in Docker
+   1.13.
+
+The logstash keystore is also looked after on the class path and can be put in either of these
+locations.
+
+If you use a property file, it has to contain settings for all variables in the corresponding
+section, but you can mix use of environment variables for one section, and properties for some
+other. In particular, you may want to use a property file for the Azure settings,
+azure.properties, which will be containing a lot of secrets.
+
+
 ### Environment configuration
 
-Overview of required settings.
+Azure settings, corresponding properties are found in `azure.properties`.
 
-(Note: these can be set in a number of ways now, including using Docker 1.13 secrets management and
-use of a mounted volume containing corresponding properties files, this needs to be documented).
+| Environment | Property | Default | Description |
+|-------------|----------|---------|-------------|
+| AZURE_SUBSCRIPTION_ID | subscription | | The UUID of your Azure subscription. Looks like xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx |
+| AZURE_RESOURCE_GROUP | resource_group | | The name of your resource group. |
+| AZURE_WORKSPACE | workspace | | The name of your OMS workspace. |
+| AZURE_TENANTID | tenantId | | The UUID of the "tenant" for Oauth client authentication to Azure. |
+| AZURE_CLIENTID | clientId | | The UUID of the oms-to-elk client to authenticate to Azure with. |
+| AZURE_CLIENTKEY | clientKey | | The key corresponding to the UUID above. |
 
-| Variable | Description |
-|----------|-------------|
-| AZURE_SUBSCRIPTION_ID | The UUID of your Azure subscription. Looks like xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx |
-| AZURE_RESOURCE_GROUP | The name of your resource group. |
-| AZURE_OMS_WORKSPACE | The name of your OMS workspace. |
-| AZURE_TENANTID | The UUID of the "tenant" for Oauth client authentication to Azure. |
-| AZURE_CLIENTID | The UUID of the oms-to-elk client to authenticate to Azure with. |
-| AZURE_CLIENTKEY | The key corresponding to the UUID above. |
-| LOGSTASH_SERVER | The name of the logstash host |
-| LOGSTASH_PORT | The logstash port number to use |
+Logstash settings, corresponding properties are found in `logstash.properties`.
 
-Optional settings.
+| Environment | Property | Default | Description |
+|-------------|----------|---------|-------------|
+| LOGSTASH_SERVER | server | | The name of the logstash host |
+| LOGSTASH_PORT | port | | The logstash port number to use |
+| LOGSTASH_KEYSTORE | keystore | oms-to-elk.keystore | The name of the keystore file to look for, not a path
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| LOGSTASH_KEYSTORE | oms-to-elk.keystore | The name of the keystore file to look for, not a path |
-| OMS_ELK_SAVED_QUERY | oms-to-elk:Default | The category and name of the keystore file to look for, not a path |
+Oms-to-elk general settings, corresponding properties are found in `oms-to-elk.properties`.
+
+| Environment | Property | Default | Description |
+|-------------|----------|---------|-------------|
+| OMS_ELK_SAVED_QUERY | saved_query | oms-to-elk:Default | The category and name of the keystore file to look for, not a path |
 
 
 ### OMS

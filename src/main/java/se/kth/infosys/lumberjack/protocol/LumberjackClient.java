@@ -90,7 +90,6 @@ public class LumberjackClient implements ProtocolAdapter {
             SSLSocketFactory socketFactory = context.getSocketFactory();
             socket = new Socket();
             socket.connect(new InetSocketAddress(InetAddress.getByName(server), port), timeout);
-            socket.setSoTimeout(timeout);
             sslSocket = (SSLSocket)socketFactory.createSocket(socket, server, port, true);
             sslSocket.setUseClientMode(true);
             sslSocket.startHandshake();
@@ -233,5 +232,9 @@ public class LumberjackClient implements ProtocolAdapter {
 
     public boolean isConnected() {
         return sslSocket != null && sslSocket.isConnected();
+    }
+
+    public Socket getSocket() {
+        return sslSocket;
     }
 }

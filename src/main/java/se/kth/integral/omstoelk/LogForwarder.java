@@ -15,7 +15,7 @@ import se.kth.infosys.lumberjack.protocol.LumberjackClient;
 import se.kth.infosys.lumberjack.util.AdapterException;
 
 public class LogForwarder implements Runnable {
-    private static final int SOCKET_TIMEOUT = 10000;
+    private static final int SOCKET_TIMEOUT = 60000;
     private static final int BACKOFF_SLEEP_TIME = 10000;
     private static final int BATCH_SIZE = 100;
     private static final Logger LOG = LoggerFactory.getLogger(LogForwarder.class);
@@ -43,6 +43,8 @@ public class LogForwarder implements Runnable {
         } catch (Exception e) {}
 
         this.logstash = new LumberjackClient(keystore, server, port, SOCKET_TIMEOUT);
+        this.logstash.getSocket().setKeepAlive(true);
+        this.logstash.getSocket().setSoTimeout(SOCKET_TIMEOUT);
     }
 
     private void storeTimestamp(String timestamp) {
