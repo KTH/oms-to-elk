@@ -1,5 +1,9 @@
 # Release notes
 
+## 2.0.2
+
+Fix statistics.
+
 ## 2.0.1
 
 Set keep-alive.
