@@ -87,7 +87,7 @@ public class LogRetriever implements Runnable {
                     lastTimestamp = DateTime.parse(json.get("TimeGenerated").asText());
                     String id = json.get("id").asText();
                     if (!cache.containsKey(id)) {
-                        cache.put(id, json);
+                        cache.put(id, null);
                         queue.add(json);
                         backoff = false;
                         backtick = 0;
