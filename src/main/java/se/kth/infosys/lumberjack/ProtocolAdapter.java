@@ -1,5 +1,7 @@
 package se.kth.infosys.lumberjack;
 
+import java.net.Socket;
+
 /*
  * Copyright (c) 2017 Kungliga Tekniska högskolan
  * Copyright (c) 2015 Didier Fetter
@@ -28,4 +30,5 @@ public interface ProtocolAdapter {
     public String getServer();
     public int getPort();
     public boolean isConnected();
+    public Socket getSocket();
 }
