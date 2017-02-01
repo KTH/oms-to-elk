@@ -1,7 +1,0 @@
-AZURE_SUBSCRIPTION_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-AZURE_RESOURCE_GROUP=name-of-your-resource-group
-OMS_WORKSPACE=name-of-your-oms-workspace
-OMS_ELK_TENANTID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-OMS_ELK_CLIENTKEY=YYyYYyYYyYyyYyYYYyyYyyyyYYyy=
-OMS_ELK_CLIENTID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-LOGSTASH_SERVER_URL=logstash://hostname:port
