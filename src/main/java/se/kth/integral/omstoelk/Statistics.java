@@ -21,7 +21,11 @@ public class Statistics {
     public String query;
 
     public synchronized void addCount(long messages) {
-        this.messages = messages;
+        this.messages += messages;
         this.totalMessages += messages;
+    }
+
+    public synchronized void reset() {
+        this.messages = 0;
     }
 }

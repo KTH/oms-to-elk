@@ -20,7 +20,7 @@ public class StatisticsLogger implements Runnable {
         try {
             synchronized (this) {
                 LOG.info(OM.writeValueAsString(statistics));
-                statistics.addCount(0);
+                statistics.reset();
             }
         } catch (JsonProcessingException e) {
             LOG.error("Failed to log statistics: {}", e.getMessage(), e);
