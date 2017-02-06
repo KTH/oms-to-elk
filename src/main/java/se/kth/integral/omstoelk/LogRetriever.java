@@ -45,7 +45,7 @@ public class LogRetriever implements Runnable {
 
     @Override
     public void run() {
-        boolean backoff = false;
+        int backoff = 0;
         int lookBehind = LOOK_BEHIND_FOR_LATE_INDEX_TIME;
 
         DateTime lastTimestamp;
@@ -58,15 +58,12 @@ public class LogRetriever implements Runnable {
         LOG.info("Start retrieving log entries from {}", lastTimestamp);
 
         while (true) {
-            if (backoff) {
-                try {
-                    backoff = false;
-                    Thread.sleep(BACKOFF_SLEEP_TIME);
-                } catch (InterruptedException e) {}
-            }
-
+            try {
+                Thread.sleep(backoff);
+            } catch (InterruptedException e) {}
+ 
             if (queryRetriever.getSavedSearch() == null) {
-                backoff = true;
+                backoff = BACKOFF_SLEEP_TIME;
                 continue;
             }
 
@@ -80,19 +77,20 @@ public class LogRetriever implements Runnable {
                 SearchResultsResponse searchResults = 
                         workspaces.beginGetSearchResults(resourceGroup, workspace, parameters);
 
-                backoff = true;
+                backoff = BACKOFF_SLEEP_TIME;
                 lookBehind = LOOK_BEHIND_FOR_LATE_INDEX_TIME;
 
                 for (Object res : searchResults.value()) {
                     JsonNode json = OM.convertValue(res, JsonNode.class);
                     lastTimestamp = DateTime.parse(json.get("TimeGenerated").asText());
                     String id = json.get("id").asText();
+
                     if (!cache.containsKey(id)) {
                         cache.put(id, null);
                         queue.add(json);
                         // When we find entries to add to queue, immediately
                         // look for more in next cycle.
-                        backoff = false;
+                        backoff = 0;
                         lookBehind = 0;
                     }
                 }
