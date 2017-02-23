@@ -19,6 +19,7 @@ import se.kth.integral.azure.opinsights.models.SearchResultsResponse;
 public class LogRetriever implements Runnable {
     private static final int LOOK_BEHIND_FOR_LATE_INDEX_TIME = 10000;
     private static final int BACKOFF_SLEEP_TIME = 10000;
+    private static final long BATCH_SIZE = 100;
     private static final Logger LOG = LoggerFactory.getLogger(QueryRetriever.class);
     private static final ObjectMapper OM = new ObjectMapper();
     private static final FifoCache<String, JsonNode> cache = new FifoCache<String, JsonNode>();
@@ -45,8 +46,8 @@ public class LogRetriever implements Runnable {
 
     @Override
     public void run() {
-        boolean backoff = false;
-        int backtick = LOOK_BEHIND_FOR_LATE_INDEX_TIME;
+        int backoff = 0;
+        int lookBehind = LOOK_BEHIND_FOR_LATE_INDEX_TIME;
 
         DateTime lastTimestamp;
         try {
@@ -58,39 +59,47 @@ public class LogRetriever implements Runnable {
         LOG.info("Start retrieving log entries from {}", lastTimestamp);
 
         while (true) {
-            if (backoff) {
-                try {
-                    backoff = false;
-                    Thread.sleep(BACKOFF_SLEEP_TIME);
-                } catch (InterruptedException e) {}
-            }
-
+            try {
+                Thread.sleep(backoff);
+            } catch (InterruptedException e) {}
+ 
             if (queryRetriever.getSavedSearch() == null) {
-                backoff = true;
+                backoff = BACKOFF_SLEEP_TIME;
                 continue;
             }
 
             try {
                 DateTime now = DateTime.now();
                 SearchParameters parameters = new SearchParameters()
-                        .withTop(100L)
-                        .withStart(lastTimestamp.minusMillis(backtick))
+                        .withTop(BATCH_SIZE)
+                        .withStart(lastTimestamp.minusMillis(lookBehind))
                         .withEnd(now)
                         .withQuery(queryRetriever.getSavedSearch().query());
                 SearchResultsResponse searchResults = 
                         workspaces.beginGetSearchResults(resourceGroup, workspace, parameters);
 
-                backoff = true;
-                backtick = 10000;
+                // Wind back a period of time at end of results to increase 
+                // chance of catching items indexed out of order.
+                if (searchResults.value().size() < BATCH_SIZE) {
+                    lookBehind = LOOK_BEHIND_FOR_LATE_INDEX_TIME;
+                } else {
+                    lookBehind = 0;
+                }
+
+                // Assume we are at end of results and should back off 
+                // before walking through results and discover otherwise.
+                backoff = BACKOFF_SLEEP_TIME;
+
                 for (Object res : searchResults.value()) {
                     JsonNode json = OM.convertValue(res, JsonNode.class);
                     lastTimestamp = DateTime.parse(json.get("TimeGenerated").asText());
                     String id = json.get("id").asText();
+
                     if (!cache.containsKey(id)) {
                         cache.put(id, null);
                         queue.add(json);
-                        backoff = false;
-                        backtick = 0;
+                        // Found new entries, immediately look for more in next cycle.
+                        backoff = 0;
                     }
                 }
             } catch (Exception e) {
