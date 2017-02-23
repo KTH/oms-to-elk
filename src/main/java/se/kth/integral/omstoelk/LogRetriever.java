@@ -19,6 +19,7 @@ import se.kth.integral.azure.opinsights.models.SearchResultsResponse;
 public class LogRetriever implements Runnable {
     private static final int LOOK_BEHIND_FOR_LATE_INDEX_TIME = 10000;
     private static final int BACKOFF_SLEEP_TIME = 10000;
+    private static final long BATCH_SIZE = 100;
     private static final Logger LOG = LoggerFactory.getLogger(QueryRetriever.class);
     private static final ObjectMapper OM = new ObjectMapper();
     private static final FifoCache<String, JsonNode> cache = new FifoCache<String, JsonNode>();
@@ -70,15 +71,24 @@ public class LogRetriever implements Runnable {
             try {
                 DateTime now = DateTime.now();
                 SearchParameters parameters = new SearchParameters()
-                        .withTop(100L)
+                        .withTop(BATCH_SIZE)
                         .withStart(lastTimestamp.minusMillis(lookBehind))
                         .withEnd(now)
                         .withQuery(queryRetriever.getSavedSearch().query());
                 SearchResultsResponse searchResults = 
                         workspaces.beginGetSearchResults(resourceGroup, workspace, parameters);
 
+                // Wind back a period of time at end of results to increase 
+                // chance of catching items indexed out of order.
+                if (searchResults.value().size() < BATCH_SIZE) {
+                    lookBehind = LOOK_BEHIND_FOR_LATE_INDEX_TIME;
+                } else {
+                    lookBehind = 0;
+                }
+
+                // Assume we are at end of results and should back off 
+                // before walking through results and discover otherwise.
                 backoff = BACKOFF_SLEEP_TIME;
-                lookBehind = LOOK_BEHIND_FOR_LATE_INDEX_TIME;
 
                 for (Object res : searchResults.value()) {
                     JsonNode json = OM.convertValue(res, JsonNode.class);
@@ -88,10 +98,8 @@ public class LogRetriever implements Runnable {
                     if (!cache.containsKey(id)) {
                         cache.put(id, null);
                         queue.add(json);
-                        // When we find entries to add to queue, immediately
-                        // look for more in next cycle.
+                        // Found new entries, immediately look for more in next cycle.
                         backoff = 0;
-                        lookBehind = 0;
                     }
                 }
             } catch (Exception e) {
