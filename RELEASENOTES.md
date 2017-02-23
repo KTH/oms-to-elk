@@ -1,5 +1,9 @@
 # Release notes
 
+## 2.0.3
+
+Fix an issue with log retrieval stopping for bursty logs.
+
 ## 2.0.2
 
 Fix statistics.
