@@ -1,0 +1,13 @@
+# Sceleton for an environment file, see README.md
+
+# Azure OMS configuration
+AZURE_SUBSCRIPTION_ID=
+AZURE_RESOURCE_GROUP=
+AZURE_WORKSPACE=
+AZURE_TENANTID=
+AZURE_CLIENTID=
+AZURE_CLIENTKEY=
+
+# Logstash configuration
+LOGSTASH_SERVER=
+LOGSTASH_PORT=
