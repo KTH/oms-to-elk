@@ -39,8 +39,8 @@ Logstash settings, corresponding properties are found in `logstash.properties`.
 
 | Environment | Property | Default | Description |
 |-------------|----------|---------|-------------|
-| LOGSTASH_SERVER | server | | The name of the logstash host |
-| LOGSTASH_PORT | port | | The logstash port number to use |
+| LOGSTASH_SERVER | server | localhost | The name of the logstash host |
+| LOGSTASH_PORT | port | 5000 | The logstash port number to use |
 | LOGSTASH_KEYSTORE | keystore | oms-to-elk.keystore | The name of the keystore file to look for, not a path
 
 Oms-to-elk general settings, corresponding properties are found in `oms-to-elk.properties`.
