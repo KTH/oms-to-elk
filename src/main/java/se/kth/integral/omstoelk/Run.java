@@ -37,28 +37,28 @@ import se.kth.integral.azure.opinsights.implementation.AzureLogAnalyticsImpl;
 
 public class Run {
     public static void main(String[] args) throws IOException, AdapterException, InterruptedException  {
-        final Queue<JsonNode> queue = new ConcurrentLinkedQueue<JsonNode>();
+        Queue<JsonNode> queue = new ConcurrentLinkedQueue<JsonNode>();
 
-        final ClassLoader loader = Run.class.getClassLoader();
+        ClassLoader loader = Run.class.getClassLoader();
 
         InputStream stream =  loader.getResourceAsStream("oms-to-elk.properties");
-        final Properties omsToElkProperties = new Properties();
+        Properties omsToElkProperties = new Properties();
         omsToElkProperties.load(stream);
         stream.close();
 
         stream = loader.getResourceAsStream("azure.properties");
-        final Properties azureProperties = new Properties();
+        Properties azureProperties = new Properties();
         azureProperties.load(stream);
         stream.close();
 
         stream = loader.getResourceAsStream("logstash.properties");
-        final Properties logstashProperties = new Properties();
+        Properties logstashProperties = new Properties();
         logstashProperties.load(stream);
         stream.close();
 
-        final Statistics statistics = new Statistics();
+        Statistics statistics = new Statistics();
         StatisticsLogger sl = new StatisticsLogger(statistics);
-        final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(sl, 1, 1, TimeUnit.MINUTES);
 
         ServiceClientCredentials credentials = new ApplicationTokenCredentials(
