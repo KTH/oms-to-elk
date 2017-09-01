@@ -2,6 +2,11 @@
 
 A tool to forward logs from OMS to Logstash.
 
+*Note:* the Azure Log Analytics REST API used does not as of this writing support the new query language.
+Expressions must be written in old syntax. If you convert a workspace to the new language, any stored 
+query used with oms-to-elk must be restored back to the old syntax. This is however possible, at least 
+in the Azure portal. Not sure if it can be done in the converted OMS portal.
+
 ## Configuration
 
 The application starts with the class path `/run/secrets:/opt/data:/opt/oms-to-elk`, allowing
