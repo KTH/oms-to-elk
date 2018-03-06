@@ -165,7 +165,11 @@ see documentation above.
 ### Using autorest to generate sources.
 
 ```
-autorest --debug --java --namespace=se.kth.integral.oms --generator=Azure.Java --input-file=src/main/swagger/log-analytics.json
+autorest --debug --java \
+    --namespace=se.kth.integral.oms \
+    --generator=Azure.Java \
+    --input-file=src/main/swagger/log-analytics.json \
+    --output-folder=src/main/java/se/kth/integral/oms
 ```
 
 The code is then found in the `Generated` folder. Move it to the destination.
