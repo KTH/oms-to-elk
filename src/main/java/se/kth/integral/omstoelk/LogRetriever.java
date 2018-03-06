@@ -92,11 +92,13 @@ public class LogRetriever implements Runnable {
 
                 for (Object res : searchResults.value()) {
                     JsonNode json = OM.convertValue(res, JsonNode.class);
-                    lastTimestamp = DateTime.parse(json.get("TimeGenerated").asText());
-                    String id = json.get("id").asText();
+                    String timestampStr = json.get("TimeGenerated").asText();
+                    lastTimestamp = DateTime.parse(timestampStr);
+//                    String id = json.get("id").asText();
+                    String id = String.join(":", timestampStr, json.get("msg_s").asText());
 
                     if (!cache.containsKey(id)) {
-                        cache.put(id, json);
+                        cache.put(id, null);
                         queue.add(json);
                         // Found new entries, immediately look for more in next cycle.
                         backoff = 0;
