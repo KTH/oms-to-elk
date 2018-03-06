@@ -22,7 +22,7 @@ public class LogRetriever implements Runnable {
     private static final long BATCH_SIZE = 100;
     private static final Logger LOG = LoggerFactory.getLogger(QueryRetriever.class);
     private static final ObjectMapper OM = new ObjectMapper();
-    private static final FifoCache<String, JsonNode> cache = new FifoCache<String, JsonNode>();
+    private static final FifoCache<String, JsonNode> cache = new FifoCache<String, JsonNode>(10000);
 
 
     private final QueryRetriever queryRetriever;
@@ -92,8 +92,10 @@ public class LogRetriever implements Runnable {
 
                 for (Object res : searchResults.value()) {
                     JsonNode json = OM.convertValue(res, JsonNode.class);
-                    lastTimestamp = DateTime.parse(json.get("TimeGenerated").asText());
-                    String id = json.get("id").asText();
+                    String timestampStr = json.get("TimeGenerated").asText();
+                    lastTimestamp = DateTime.parse(timestampStr);
+//                    String id = json.get("id").asText();
+                    String id = String.join(":", timestampStr, json.get("msg_s").asText());
 
                     if (!cache.containsKey(id)) {
                         cache.put(id, null);
