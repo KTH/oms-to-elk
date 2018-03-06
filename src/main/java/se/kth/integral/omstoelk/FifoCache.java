@@ -5,10 +5,19 @@ import java.util.Map;
 
 @SuppressWarnings("serial")
 public class FifoCache<K,V> extends LinkedHashMap<K,V> {
-    public static final int SIZE = 1000;
+    private static final int DEFAULT_SIZE = 1000;
+    private final int limit;
+
+    public FifoCache() {
+        this(DEFAULT_SIZE);
+    }
+
+    public FifoCache(int size) {
+        this.limit = size;
+    }
 
     @Override
     protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
-        return size() > SIZE;
+        return size() > limit;
     }
 }

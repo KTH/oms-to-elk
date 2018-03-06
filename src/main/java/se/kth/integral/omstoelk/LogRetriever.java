@@ -22,7 +22,7 @@ public class LogRetriever implements Runnable {
     private static final long BATCH_SIZE = 100;
     private static final Logger LOG = LoggerFactory.getLogger(QueryRetriever.class);
     private static final ObjectMapper OM = new ObjectMapper();
-    private static final FifoCache<String, JsonNode> cache = new FifoCache<String, JsonNode>();
+    private static final FifoCache<String, JsonNode> cache = new FifoCache<String, JsonNode>(10000);
 
 
     private final QueryRetriever queryRetriever;
@@ -96,7 +96,7 @@ public class LogRetriever implements Runnable {
                     String id = json.get("id").asText();
 
                     if (!cache.containsKey(id)) {
-                        cache.put(id, null);
+                        cache.put(id, json);
                         queue.add(json);
                         // Found new entries, immediately look for more in next cycle.
                         backoff = 0;
