@@ -94,8 +94,15 @@ public class LogRetriever implements Runnable {
                     JsonNode json = OM.convertValue(res, JsonNode.class);
                     String timestampStr = json.get("TimeGenerated").asText();
                     lastTimestamp = DateTime.parse(timestampStr);
-//                    String id = json.get("id").asText();
-                    String id = String.join(":", timestampStr, json.get("msg_s").asText());
+
+                    // Using the id does not work when the workspace is converted. Ids seem
+                    // to be generated dynamically and will change between searches.
+                    // String id = json.get("id").asText();
+                    //
+                    // We now use the timestamp instead, but that means that two log entries
+                    // with the same millisecond level timestamp will collide and one of 
+                    // them be lost. Likelihood for our purposes is low.
+                    String id = timestampStr;
 
                     if (!cache.containsKey(id)) {
                         cache.put(id, null);
