@@ -9,15 +9,12 @@ import java.util.Queue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 
 import se.kth.infosys.lumberjack.Event;
 
 public class EventBatch {
     private static final Logger LOG = LoggerFactory.getLogger(EventBatch.class);
-    private static final ObjectMapper OM = new ObjectMapper();
 
     private List<Event> events;
     private Instant timestamp;
@@ -32,9 +29,9 @@ public class EventBatch {
                 if (json == null) {
                     break;
                 }
-                batch.events.add(new Event().addField("line", OM.writeValueAsString(json)));
+                batch.events.add(new Event().addField("line", json.toString()));
                 batch.timestamp = Instant.parse(json.get("TimeGenerated").getAsString());
-            } catch (UnsupportedEncodingException | JsonProcessingException e) {
+            } catch (UnsupportedEncodingException e) {
                 LOG.error("Failed to encode json: {}", e.getMessage());
             }
         }

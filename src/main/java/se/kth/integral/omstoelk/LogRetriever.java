@@ -10,7 +10,6 @@ import java.util.Queue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.JsonObject;
 
 import se.kth.integral.oms.Querys;
@@ -20,10 +19,10 @@ import se.kth.integral.oms.models.TableObject;
 public class LogRetriever implements Runnable {
     private static final int LOOK_BEHIND_FOR_LATE_INDEX_TIME = 10000;
     private static final int BACKOFF_SLEEP_TIME = 10000;
-    private static final long BATCH_SIZE = 100;
+    private static final long BATCH_SIZE = 1000;
 
     private static final Logger LOG = LoggerFactory.getLogger(LogRetriever.class);
-    private static final FifoCache<String, JsonNode> cache = new FifoCache<String, JsonNode>(10000);
+    private static final FifoCache<String, Object> cache = new FifoCache<String, Object>(10000);
 
     private final String query;
     private final Queue<JsonObject> queue;
