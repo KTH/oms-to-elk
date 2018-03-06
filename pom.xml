@@ -28,6 +28,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <build>dev</build>
   </properties>
 
   <dependencies>
@@ -176,9 +177,10 @@
           <image>kthse/${project.artifactId}</image>
           <newName>kthse/${project.artifactId}</newName>
           <useConfigFile>true</useConfigFile>
+          <pullOnBuild>true</pullOnBuild>
           <imageTags>
             <imageTag>latest</imageTag>
-            <imageTag>${project.version}</imageTag>
+            <imageTag>${project.version}-${build}</imageTag>
             <imageTag>${git.commit.id.abbrev}</imageTag>
           </imageTags>
           <resources>
