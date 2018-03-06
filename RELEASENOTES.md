@@ -1,5 +1,9 @@
 # Release notes
 
+## 2.0.4
+
+Try fix an issue where log entries are logged several times.
+
 ## 2.0.3
 
 Fix an issue with log retrieval stopping for bursty logs.
