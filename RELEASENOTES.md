@@ -1,6 +1,6 @@
 # Release notes
 
-## 2.0.4
+## 2.0.5
 
 Try fix an issue where log entries are logged several times.
 
