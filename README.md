@@ -35,7 +35,7 @@ Azure settings, corresponding properties are found in `azure.properties`.
 |-------------|----------|---------|-------------|
 | AZURE_SUBSCRIPTION_ID | subscription | | The UUID of your Azure subscription. Looks like xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx |
 | AZURE_RESOURCE_GROUP | resource_group | | The name of your resource group. |
-| AZURE_WORKSPACE | workspace | | The name of your OMS workspace. |
+| AZURE_WORKSPACE | oms_workspace | | The name of your OMS workspace. |
 | AZURE_TENANTID | tenantId | | The UUID of the "tenant" for Oauth client authentication to Azure. |
 | AZURE_CLIENTID | clientId | | The UUID of the oms-to-elk client to authenticate to Azure with. |
 | AZURE_CLIENTKEY | clientKey | | The key corresponding to the UUID above. |
@@ -44,8 +44,8 @@ Logstash settings, corresponding properties are found in `logstash.properties`.
 
 | Environment | Property | Default | Description |
 |-------------|----------|---------|-------------|
-| LOGSTASH_SERVER | server | | The name of the logstash host |
-| LOGSTASH_PORT | port | | The logstash port number to use |
+| LOGSTASH_SERVER | server | localhost | The name of the logstash host |
+| LOGSTASH_PORT | port | 5000 | The logstash port number to use |
 | LOGSTASH_KEYSTORE | keystore | oms-to-elk.keystore | The name of the keystore file to look for, not a path
 
 Oms-to-elk general settings, corresponding properties are found in `oms-to-elk.properties`.
