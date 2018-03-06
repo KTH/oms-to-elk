@@ -20,7 +20,7 @@
 
   <groupId>se.kth.integral</groupId>
   <artifactId>oms-to-elk</artifactId>
-  <version>2.0.6</version>
+  <version>3.0.0</version>
   <packaging>jar</packaging>
 
   <name>oms-to-elk</name>

@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.List;
 import java.util.Queue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import se.kth.integral.oms.Querys;
@@ -27,6 +30,7 @@ public class LogRetriever implements Runnable {
     private final String query;
     private final Queue<JsonObject> queue;
     private final Querys querys;
+    private final Gson gson;
 
     public LogRetriever(
             final Querys querys,
@@ -35,6 +39,10 @@ public class LogRetriever implements Runnable {
         this.querys = querys;
         this.query = query;
         this.queue = queue;
+
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(TableObject.class, new TableObjectJsonAdapter());
+        this.gson = builder.create();
     }
 
     @Override
@@ -58,7 +66,7 @@ public class LogRetriever implements Runnable {
  
             try {
                 QueryResponse searchResults = querys.get(
-                        String.format("%s | where TimeGenerated > %s and TimeGenerated < %s | limit %s | order by TimeGenereted asc",
+                        String.format("%s | where TimeGenerated >= %s and TimeGenerated <= %s | limit %s | order by TimeGenereted asc",
                                 query,
                                 lastTimestamp.minusMillis(lookBehind),
                                 Instant.now(),
@@ -83,14 +91,12 @@ public class LogRetriever implements Runnable {
                 // before walking through results and discover otherwise.
                 backoff = BACKOFF_SLEEP_TIME;
 
-                TableObject res = searchResults.tables().get(0);
-                for (List<String> row : res.rows()) {
-                    JsonObject json = new JsonObject();
+                final TableObject res = searchResults.tables().get(0);
+                final JsonArray elements = gson.toJsonTree(res).getAsJsonArray();
 
-                    for (int i = 0; i < row.size(); i++) {
-                        json.addProperty(res.columns().get(i).name(), row.get(i));
-                    }
-                    String id = json.toString();
+                for (final JsonElement element : elements) {
+                    JsonObject json = element.getAsJsonObject();
+                    String id = element.toString();
 
                     lastTimestamp = Instant.parse(json.get("TimeGenerated").getAsString());
 
