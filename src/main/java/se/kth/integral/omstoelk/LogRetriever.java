@@ -96,7 +96,7 @@ public class LogRetriever implements Runnable {
 
                 for (final JsonElement element : elements) {
                     JsonObject json = element.getAsJsonObject();
-                    String id = element.toString();
+                    String id = json.toString();
 
                     lastTimestamp = Instant.parse(json.get("TimeGenerated").getAsString());
 
