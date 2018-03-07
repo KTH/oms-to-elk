@@ -8,7 +8,7 @@ import java.util.Queue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonObject;
 
 import se.kth.infosys.lumberjack.ProtocolAdapter;
 import se.kth.infosys.lumberjack.protocol.LumberjackClient;
@@ -21,7 +21,7 @@ public class LogForwarder implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(LogForwarder.class);
 
     private final Statistics statistics;
-    private final Queue<JsonNode> queue;
+    private final Queue<JsonObject> queue;
     private final String server;
     private final int port;
     private final String keystore;
@@ -29,7 +29,7 @@ public class LogForwarder implements Runnable {
     private FileOutputStream timestampFile;
     private ProtocolAdapter logstash;
 
-    public LogForwarder(Statistics statistics, Queue<JsonNode> queue, final String server, final int port, final String keystore) throws IOException {
+    public LogForwarder(Statistics statistics, Queue<JsonObject> queue, final String server, final int port, final String keystore) throws IOException {
         this.statistics = statistics;
         this.queue = queue;
         this.server = server;
