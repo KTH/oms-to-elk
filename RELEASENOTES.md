@@ -1,5 +1,9 @@
 # Release notes
 
+## 2.0.7
+
+Try fix an issue where log retriever gets stuck.
+
 ## 2.0.6
 
 Try fix an issue where log entries are logged several times.
