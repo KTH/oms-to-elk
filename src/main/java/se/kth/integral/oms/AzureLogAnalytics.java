@@ -9,9 +9,9 @@ package se.kth.integral.oms;
 import com.microsoft.rest.RestClient;
 
 /**
- * The interface for AzureLogAnalyticspublicAPI class.
+ * The interface for AzureLogAnalytics class.
  */
-public interface AzureLogAnalyticspublicAPI {
+public interface AzureLogAnalytics {
     /**
      * Gets the REST client.
      *
@@ -37,7 +37,7 @@ public interface AzureLogAnalyticspublicAPI {
      * @param workspaceId the workspaceId value.
      * @return the service client itself
      */
-    AzureLogAnalyticspublicAPI withWorkspaceId(String workspaceId);
+    AzureLogAnalytics withWorkspaceId(String workspaceId);
 
     /**
      * Gets the Querys object to access its operations.

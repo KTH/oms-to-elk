@@ -13,19 +13,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * A query response.
  * Contains the tables, columns &amp; rows resulting from a query.
  */
-public class QueryResponse {
+public class QueryResults {
     /**
      * The list of tables, columns and rows.
      */
     @JsonProperty(value = "tables", required = true)
-    private List<TableObject> tables;
+    private List<Table> tables;
 
     /**
      * Get the tables value.
      *
      * @return the tables value
      */
-    public List<TableObject> tables() {
+    public List<Table> tables() {
         return this.tables;
     }
 
@@ -33,9 +33,9 @@ public class QueryResponse {
      * Set the tables value.
      *
      * @param tables the tables value to set
-     * @return the QueryResponse object itself.
+     * @return the QueryResults object itself.
      */
-    public QueryResponse withTables(List<TableObject> tables) {
+    public QueryResults withTables(List<Table> tables) {
         this.tables = tables;
         return this;
     }

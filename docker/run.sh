@@ -20,28 +20,28 @@ set -e
 
 cat << eof > /opt/oms-to-elk/azure.properties
 # Azure OMS connection details
-resource_group=${AZURE_RESOURCE_GROUP}
-oms_workspace=${AZURE_WORKSPACE}
-clientId=${AZURE_CLIENTID}
-tenantId=${AZURE_TENANTID}
-clientKey=${AZURE_CLIENTKEY}
-subscription=${AZURE_SUBSCRIPTION_ID}
+resource_group="${AZURE_RESOURCE_GROUP}"
+oms_workspace="${AZURE_WORKSPACE}"
+clientId="${AZURE_CLIENTID}"
+tenantId="${AZURE_TENANTID}"
+clientKey="${AZURE_CLIENTKEY}"
+subscription="${AZURE_SUBSCRIPTION_ID}"
 eof
 
 cat << eof > /opt/oms-to-elk/logstash.properties
 # Logstash server connection details
-keystore=${LOGSTASH_KEYSTORE}
-server=${LOGSTASH_SERVER}
-port=${LOGSTASH_PORT}
+keystore="${LOGSTASH_KEYSTORE}"
+server="${LOGSTASH_SERVER}"
+port="${LOGSTASH_PORT}"
 eof
 
 cat << eof > /opt/oms-to-elk/oms-to-elk.properties
 # oms-to-elk configurations
-saved_query=${OMS_ELK_SAVED_QUERY}
+saved_query="${OMS_ELK_QUERY}"
 eof
 
 if [ ! -f "timestamp" ]; then
-    case "${OMS_ELK_START_DATE:-'NOW'}" in
+    case "${OMS_ELK_START_DATE}" in
         ^[0-9][0-9TZ:-]*)
             echo "${OMS_ELK_START_DATE}" > timestamp
             ;;

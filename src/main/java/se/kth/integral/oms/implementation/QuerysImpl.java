@@ -15,6 +15,7 @@ import com.microsoft.rest.ServiceResponse;
 import com.microsoft.rest.Validator;
 import java.io.IOException;
 import okhttp3.ResponseBody;
+import org.joda.time.Period;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
@@ -26,7 +27,7 @@ import rx.functions.Func1;
 import rx.Observable;
 import se.kth.integral.oms.models.ErrorResponseException;
 import se.kth.integral.oms.models.QueryBody;
-import se.kth.integral.oms.models.QueryResponse;
+import se.kth.integral.oms.models.QueryResults;
 
 /**
  * An instance of this class provides access to all the operations defined
@@ -36,7 +37,7 @@ public class QuerysImpl implements Querys {
     /** The Retrofit service to perform REST calls. */
     private QuerysService service;
     /** The service client containing this operation class. */
-    private AzureLogAnalyticspublicAPIImpl client;
+    private AzureLogAnalyticsImpl client;
 
     /**
      * Initializes an instance of Querys.
@@ -44,7 +45,7 @@ public class QuerysImpl implements Querys {
      * @param retrofit the Retrofit instance built from a Retrofit Builder.
      * @param client the instance of the service client containing this operation class.
      */
-    public QuerysImpl(Retrofit retrofit, AzureLogAnalyticspublicAPIImpl client) {
+    public QuerysImpl(Retrofit retrofit, AzureLogAnalyticsImpl client) {
         this.service = retrofit.create(QuerysService.class);
         this.client = client;
     }
@@ -55,12 +56,12 @@ public class QuerysImpl implements Querys {
      */
     interface QuerysService {
         @Headers({ "Content-Type: application/json; charset=utf-8", "x-ms-logging-context: se.kth.integral.oms.Querys get" })
-        @GET("workspaces/{workspace-id}/query")
-        Observable<Response<ResponseBody>> get(@Path("workspace-id") String workspaceId, @Query("query") String query, @Query("timespan") String timespan);
+        @GET("workspaces/{workspaceId}/query")
+        Observable<Response<ResponseBody>> get(@Path("workspaceId") String workspaceId, @Query("query") String query, @Query("timespan") Period timespan);
 
         @Headers({ "Content-Type: application/json; charset=utf-8", "x-ms-logging-context: se.kth.integral.oms.Querys post" })
-        @POST("workspaces/{workspace-id}/query")
-        Observable<Response<ResponseBody>> post(@Path("workspace-id") String workspaceId, @Body QueryBody body, @Query("timespan") String timespan);
+        @POST("workspaces/{workspaceId}/query")
+        Observable<Response<ResponseBody>> post(@Path("workspaceId") String workspaceId, @Body QueryBody body);
 
     }
 
@@ -72,9 +73,9 @@ public class QuerysImpl implements Querys {
      * @throws IllegalArgumentException thrown if parameters fail the validation
      * @throws ErrorResponseException thrown if the request is rejected by server
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
-     * @return the QueryResponse object if successful.
+     * @return the QueryResults object if successful.
      */
-    public QueryResponse get(String query) {
+    public QueryResults get(String query) {
         return getWithServiceResponseAsync(query).toBlocking().single().body();
     }
 
@@ -87,7 +88,7 @@ public class QuerysImpl implements Querys {
      * @throws IllegalArgumentException thrown if parameters fail the validation
      * @return the {@link ServiceFuture} object
      */
-    public ServiceFuture<QueryResponse> getAsync(String query, final ServiceCallback<QueryResponse> serviceCallback) {
+    public ServiceFuture<QueryResults> getAsync(String query, final ServiceCallback<QueryResults> serviceCallback) {
         return ServiceFuture.fromResponse(getWithServiceResponseAsync(query), serviceCallback);
     }
 
@@ -97,12 +98,12 @@ public class QuerysImpl implements Querys {
      *
      * @param query The Analytics query. Learn more about the [Analytics query syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
      * @throws IllegalArgumentException thrown if parameters fail the validation
-     * @return the observable to the QueryResponse object
+     * @return the observable to the QueryResults object
      */
-    public Observable<QueryResponse> getAsync(String query) {
-        return getWithServiceResponseAsync(query).map(new Func1<ServiceResponse<QueryResponse>, QueryResponse>() {
+    public Observable<QueryResults> getAsync(String query) {
+        return getWithServiceResponseAsync(query).map(new Func1<ServiceResponse<QueryResults>, QueryResults>() {
             @Override
-            public QueryResponse call(ServiceResponse<QueryResponse> response) {
+            public QueryResults call(ServiceResponse<QueryResults> response) {
                 return response.body();
             }
         });
@@ -114,22 +115,22 @@ public class QuerysImpl implements Querys {
      *
      * @param query The Analytics query. Learn more about the [Analytics query syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
      * @throws IllegalArgumentException thrown if parameters fail the validation
-     * @return the observable to the QueryResponse object
+     * @return the observable to the QueryResults object
      */
-    public Observable<ServiceResponse<QueryResponse>> getWithServiceResponseAsync(String query) {
+    public Observable<ServiceResponse<QueryResults>> getWithServiceResponseAsync(String query) {
         if (this.client.workspaceId() == null) {
             throw new IllegalArgumentException("Parameter this.client.workspaceId() is required and cannot be null.");
         }
         if (query == null) {
             throw new IllegalArgumentException("Parameter query is required and cannot be null.");
         }
-        final String timespan = null;
+        final Period timespan = null;
         return service.get(this.client.workspaceId(), query, timespan)
-            .flatMap(new Func1<Response<ResponseBody>, Observable<ServiceResponse<QueryResponse>>>() {
+            .flatMap(new Func1<Response<ResponseBody>, Observable<ServiceResponse<QueryResults>>>() {
                 @Override
-                public Observable<ServiceResponse<QueryResponse>> call(Response<ResponseBody> response) {
+                public Observable<ServiceResponse<QueryResults>> call(Response<ResponseBody> response) {
                     try {
-                        ServiceResponse<QueryResponse> clientResponse = getDelegate(response);
+                        ServiceResponse<QueryResults> clientResponse = getDelegate(response);
                         return Observable.just(clientResponse);
                     } catch (Throwable t) {
                         return Observable.error(t);
@@ -147,9 +148,9 @@ public class QuerysImpl implements Querys {
      * @throws IllegalArgumentException thrown if parameters fail the validation
      * @throws ErrorResponseException thrown if the request is rejected by server
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
-     * @return the QueryResponse object if successful.
+     * @return the QueryResults object if successful.
      */
-    public QueryResponse get(String query, String timespan) {
+    public QueryResults get(String query, Period timespan) {
         return getWithServiceResponseAsync(query, timespan).toBlocking().single().body();
     }
 
@@ -163,7 +164,7 @@ public class QuerysImpl implements Querys {
      * @throws IllegalArgumentException thrown if parameters fail the validation
      * @return the {@link ServiceFuture} object
      */
-    public ServiceFuture<QueryResponse> getAsync(String query, String timespan, final ServiceCallback<QueryResponse> serviceCallback) {
+    public ServiceFuture<QueryResults> getAsync(String query, Period timespan, final ServiceCallback<QueryResults> serviceCallback) {
         return ServiceFuture.fromResponse(getWithServiceResponseAsync(query, timespan), serviceCallback);
     }
 
@@ -174,12 +175,12 @@ public class QuerysImpl implements Querys {
      * @param query The Analytics query. Learn more about the [Analytics query syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
      * @param timespan Optional. The timespan over which to query data. This is an ISO8601 time period value.  This timespan is applied in addition to any that are specified in the query expression.
      * @throws IllegalArgumentException thrown if parameters fail the validation
-     * @return the observable to the QueryResponse object
+     * @return the observable to the QueryResults object
      */
-    public Observable<QueryResponse> getAsync(String query, String timespan) {
-        return getWithServiceResponseAsync(query, timespan).map(new Func1<ServiceResponse<QueryResponse>, QueryResponse>() {
+    public Observable<QueryResults> getAsync(String query, Period timespan) {
+        return getWithServiceResponseAsync(query, timespan).map(new Func1<ServiceResponse<QueryResults>, QueryResults>() {
             @Override
-            public QueryResponse call(ServiceResponse<QueryResponse> response) {
+            public QueryResults call(ServiceResponse<QueryResults> response) {
                 return response.body();
             }
         });
@@ -192,9 +193,9 @@ public class QuerysImpl implements Querys {
      * @param query The Analytics query. Learn more about the [Analytics query syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
      * @param timespan Optional. The timespan over which to query data. This is an ISO8601 time period value.  This timespan is applied in addition to any that are specified in the query expression.
      * @throws IllegalArgumentException thrown if parameters fail the validation
-     * @return the observable to the QueryResponse object
+     * @return the observable to the QueryResults object
      */
-    public Observable<ServiceResponse<QueryResponse>> getWithServiceResponseAsync(String query, String timespan) {
+    public Observable<ServiceResponse<QueryResults>> getWithServiceResponseAsync(String query, Period timespan) {
         if (this.client.workspaceId() == null) {
             throw new IllegalArgumentException("Parameter this.client.workspaceId() is required and cannot be null.");
         }
@@ -202,11 +203,11 @@ public class QuerysImpl implements Querys {
             throw new IllegalArgumentException("Parameter query is required and cannot be null.");
         }
         return service.get(this.client.workspaceId(), query, timespan)
-            .flatMap(new Func1<Response<ResponseBody>, Observable<ServiceResponse<QueryResponse>>>() {
+            .flatMap(new Func1<Response<ResponseBody>, Observable<ServiceResponse<QueryResults>>>() {
                 @Override
-                public Observable<ServiceResponse<QueryResponse>> call(Response<ResponseBody> response) {
+                public Observable<ServiceResponse<QueryResults>> call(Response<ResponseBody> response) {
                     try {
-                        ServiceResponse<QueryResponse> clientResponse = getDelegate(response);
+                        ServiceResponse<QueryResults> clientResponse = getDelegate(response);
                         return Observable.just(clientResponse);
                     } catch (Throwable t) {
                         return Observable.error(t);
@@ -215,9 +216,9 @@ public class QuerysImpl implements Querys {
             });
     }
 
-    private ServiceResponse<QueryResponse> getDelegate(Response<ResponseBody> response) throws ErrorResponseException, IOException, IllegalArgumentException {
-        return this.client.restClient().responseBuilderFactory().<QueryResponse, ErrorResponseException>newInstance(this.client.serializerAdapter())
-                .register(200, new TypeToken<QueryResponse>() { }.getType())
+    private ServiceResponse<QueryResults> getDelegate(Response<ResponseBody> response) throws ErrorResponseException, IOException, IllegalArgumentException {
+        return this.client.restClient().responseBuilderFactory().<QueryResults, ErrorResponseException>newInstance(this.client.serializerAdapter())
+                .register(200, new TypeToken<QueryResults>() { }.getType())
                 .registerError(ErrorResponseException.class)
                 .build(response);
     }
@@ -230,9 +231,9 @@ public class QuerysImpl implements Querys {
      * @throws IllegalArgumentException thrown if parameters fail the validation
      * @throws ErrorResponseException thrown if the request is rejected by server
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
-     * @return the QueryResponse object if successful.
+     * @return the QueryResults object if successful.
      */
-    public QueryResponse post(QueryBody body) {
+    public QueryResults post(QueryBody body) {
         return postWithServiceResponseAsync(body).toBlocking().single().body();
     }
 
@@ -245,7 +246,7 @@ public class QuerysImpl implements Querys {
      * @throws IllegalArgumentException thrown if parameters fail the validation
      * @return the {@link ServiceFuture} object
      */
-    public ServiceFuture<QueryResponse> postAsync(QueryBody body, final ServiceCallback<QueryResponse> serviceCallback) {
+    public ServiceFuture<QueryResults> postAsync(QueryBody body, final ServiceCallback<QueryResults> serviceCallback) {
         return ServiceFuture.fromResponse(postWithServiceResponseAsync(body), serviceCallback);
     }
 
@@ -255,12 +256,12 @@ public class QuerysImpl implements Querys {
      *
      * @param body The Analytics query. Learn more about the [Analytics query syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
      * @throws IllegalArgumentException thrown if parameters fail the validation
-     * @return the observable to the QueryResponse object
+     * @return the observable to the QueryResults object
      */
-    public Observable<QueryResponse> postAsync(QueryBody body) {
-        return postWithServiceResponseAsync(body).map(new Func1<ServiceResponse<QueryResponse>, QueryResponse>() {
+    public Observable<QueryResults> postAsync(QueryBody body) {
+        return postWithServiceResponseAsync(body).map(new Func1<ServiceResponse<QueryResults>, QueryResults>() {
             @Override
-            public QueryResponse call(ServiceResponse<QueryResponse> response) {
+            public QueryResults call(ServiceResponse<QueryResults> response) {
                 return response.body();
             }
         });
@@ -272,9 +273,9 @@ public class QuerysImpl implements Querys {
      *
      * @param body The Analytics query. Learn more about the [Analytics query syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
      * @throws IllegalArgumentException thrown if parameters fail the validation
-     * @return the observable to the QueryResponse object
+     * @return the observable to the QueryResults object
      */
-    public Observable<ServiceResponse<QueryResponse>> postWithServiceResponseAsync(QueryBody body) {
+    public Observable<ServiceResponse<QueryResults>> postWithServiceResponseAsync(QueryBody body) {
         if (this.client.workspaceId() == null) {
             throw new IllegalArgumentException("Parameter this.client.workspaceId() is required and cannot be null.");
         }
@@ -282,13 +283,12 @@ public class QuerysImpl implements Querys {
             throw new IllegalArgumentException("Parameter body is required and cannot be null.");
         }
         Validator.validate(body);
-        final String timespan = null;
-        return service.post(this.client.workspaceId(), body, timespan)
-            .flatMap(new Func1<Response<ResponseBody>, Observable<ServiceResponse<QueryResponse>>>() {
+        return service.post(this.client.workspaceId(), body)
+            .flatMap(new Func1<Response<ResponseBody>, Observable<ServiceResponse<QueryResults>>>() {
                 @Override
-                public Observable<ServiceResponse<QueryResponse>> call(Response<ResponseBody> response) {
+                public Observable<ServiceResponse<QueryResults>> call(Response<ResponseBody> response) {
                     try {
-                        ServiceResponse<QueryResponse> clientResponse = postDelegate(response);
+                        ServiceResponse<QueryResults> clientResponse = postDelegate(response);
                         return Observable.just(clientResponse);
                     } catch (Throwable t) {
                         return Observable.error(t);
@@ -297,87 +297,9 @@ public class QuerysImpl implements Querys {
             });
     }
 
-    /**
-     * Execute an Analytics query.
-     * Executes an Analytics query for data. [Here](/documentation/2-Using-the-API/Query) is an example for using POST with an Analytics query.
-     *
-     * @param body The Analytics query. Learn more about the [Analytics query syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
-     * @param timespan Optional. The timespan over which to query data. This is an ISO8601 time period value.  This timespan is applied in addition to any that are specified in the query expression.
-     * @throws IllegalArgumentException thrown if parameters fail the validation
-     * @throws ErrorResponseException thrown if the request is rejected by server
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
-     * @return the QueryResponse object if successful.
-     */
-    public QueryResponse post(QueryBody body, String timespan) {
-        return postWithServiceResponseAsync(body, timespan).toBlocking().single().body();
-    }
-
-    /**
-     * Execute an Analytics query.
-     * Executes an Analytics query for data. [Here](/documentation/2-Using-the-API/Query) is an example for using POST with an Analytics query.
-     *
-     * @param body The Analytics query. Learn more about the [Analytics query syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
-     * @param timespan Optional. The timespan over which to query data. This is an ISO8601 time period value.  This timespan is applied in addition to any that are specified in the query expression.
-     * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
-     * @throws IllegalArgumentException thrown if parameters fail the validation
-     * @return the {@link ServiceFuture} object
-     */
-    public ServiceFuture<QueryResponse> postAsync(QueryBody body, String timespan, final ServiceCallback<QueryResponse> serviceCallback) {
-        return ServiceFuture.fromResponse(postWithServiceResponseAsync(body, timespan), serviceCallback);
-    }
-
-    /**
-     * Execute an Analytics query.
-     * Executes an Analytics query for data. [Here](/documentation/2-Using-the-API/Query) is an example for using POST with an Analytics query.
-     *
-     * @param body The Analytics query. Learn more about the [Analytics query syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
-     * @param timespan Optional. The timespan over which to query data. This is an ISO8601 time period value.  This timespan is applied in addition to any that are specified in the query expression.
-     * @throws IllegalArgumentException thrown if parameters fail the validation
-     * @return the observable to the QueryResponse object
-     */
-    public Observable<QueryResponse> postAsync(QueryBody body, String timespan) {
-        return postWithServiceResponseAsync(body, timespan).map(new Func1<ServiceResponse<QueryResponse>, QueryResponse>() {
-            @Override
-            public QueryResponse call(ServiceResponse<QueryResponse> response) {
-                return response.body();
-            }
-        });
-    }
-
-    /**
-     * Execute an Analytics query.
-     * Executes an Analytics query for data. [Here](/documentation/2-Using-the-API/Query) is an example for using POST with an Analytics query.
-     *
-     * @param body The Analytics query. Learn more about the [Analytics query syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
-     * @param timespan Optional. The timespan over which to query data. This is an ISO8601 time period value.  This timespan is applied in addition to any that are specified in the query expression.
-     * @throws IllegalArgumentException thrown if parameters fail the validation
-     * @return the observable to the QueryResponse object
-     */
-    public Observable<ServiceResponse<QueryResponse>> postWithServiceResponseAsync(QueryBody body, String timespan) {
-        if (this.client.workspaceId() == null) {
-            throw new IllegalArgumentException("Parameter this.client.workspaceId() is required and cannot be null.");
-        }
-        if (body == null) {
-            throw new IllegalArgumentException("Parameter body is required and cannot be null.");
-        }
-        Validator.validate(body);
-        return service.post(this.client.workspaceId(), body, timespan)
-            .flatMap(new Func1<Response<ResponseBody>, Observable<ServiceResponse<QueryResponse>>>() {
-                @Override
-                public Observable<ServiceResponse<QueryResponse>> call(Response<ResponseBody> response) {
-                    try {
-                        ServiceResponse<QueryResponse> clientResponse = postDelegate(response);
-                        return Observable.just(clientResponse);
-                    } catch (Throwable t) {
-                        return Observable.error(t);
-                    }
-                }
-            });
-    }
-
-    private ServiceResponse<QueryResponse> postDelegate(Response<ResponseBody> response) throws ErrorResponseException, IOException, IllegalArgumentException {
-        return this.client.restClient().responseBuilderFactory().<QueryResponse, ErrorResponseException>newInstance(this.client.serializerAdapter())
-                .register(200, new TypeToken<QueryResponse>() { }.getType())
+    private ServiceResponse<QueryResults> postDelegate(Response<ResponseBody> response) throws ErrorResponseException, IOException, IllegalArgumentException {
+        return this.client.restClient().responseBuilderFactory().<QueryResults, ErrorResponseException>newInstance(this.client.serializerAdapter())
+                .register(200, new TypeToken<QueryResults>() { }.getType())
                 .registerError(ErrorResponseException.class)
                 .build(response);
     }

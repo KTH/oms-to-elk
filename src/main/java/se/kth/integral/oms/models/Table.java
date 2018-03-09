@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * A query response table.
  * Contains the columns and rows for one table in a query response.
  */
-public class TableObject {
+public class Table {
     /**
      * The name of the table.
      */
@@ -24,7 +24,7 @@ public class TableObject {
      * The list of columns in this table.
      */
     @JsonProperty(value = "columns", required = true)
-    private List<TableObjectColumnsItem> columns;
+    private List<Column> columns;
 
     /**
      * The resulting rows from this query.
@@ -45,9 +45,9 @@ public class TableObject {
      * Set the name value.
      *
      * @param name the name value to set
-     * @return the TableObject object itself.
+     * @return the Table object itself.
      */
-    public TableObject withName(String name) {
+    public Table withName(String name) {
         this.name = name;
         return this;
     }
@@ -57,7 +57,7 @@ public class TableObject {
      *
      * @return the columns value
      */
-    public List<TableObjectColumnsItem> columns() {
+    public List<Column> columns() {
         return this.columns;
     }
 
@@ -65,9 +65,9 @@ public class TableObject {
      * Set the columns value.
      *
      * @param columns the columns value to set
-     * @return the TableObject object itself.
+     * @return the Table object itself.
      */
-    public TableObject withColumns(List<TableObjectColumnsItem> columns) {
+    public Table withColumns(List<Column> columns) {
         this.columns = columns;
         return this;
     }
@@ -85,9 +85,9 @@ public class TableObject {
      * Set the rows value.
      *
      * @param rows the rows value to set
-     * @return the TableObject object itself.
+     * @return the Table object itself.
      */
-    public TableObject withRows(List<List<String>> rows) {
+    public Table withRows(List<List<String>> rows) {
         this.rows = rows;
         return this;
     }

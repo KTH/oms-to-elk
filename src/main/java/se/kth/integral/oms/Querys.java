@@ -10,10 +10,11 @@ import com.microsoft.rest.ServiceCallback;
 import com.microsoft.rest.ServiceFuture;
 import com.microsoft.rest.ServiceResponse;
 import java.io.IOException;
+import org.joda.time.Period;
 import rx.Observable;
 import se.kth.integral.oms.models.ErrorResponseException;
 import se.kth.integral.oms.models.QueryBody;
-import se.kth.integral.oms.models.QueryResponse;
+import se.kth.integral.oms.models.QueryResults;
 
 /**
  * An instance of this class provides access to all the operations defined
@@ -28,9 +29,9 @@ public interface Querys {
      * @throws IllegalArgumentException thrown if parameters fail the validation
      * @throws ErrorResponseException thrown if the request is rejected by server
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
-     * @return the QueryResponse object if successful.
+     * @return the QueryResults object if successful.
      */
-    QueryResponse get(String query);
+    QueryResults get(String query);
 
     /**
      * Execute an Analytics query.
@@ -41,7 +42,7 @@ public interface Querys {
      * @throws IllegalArgumentException thrown if parameters fail the validation
      * @return the {@link ServiceFuture} object
      */
-    ServiceFuture<QueryResponse> getAsync(String query, final ServiceCallback<QueryResponse> serviceCallback);
+    ServiceFuture<QueryResults> getAsync(String query, final ServiceCallback<QueryResults> serviceCallback);
 
     /**
      * Execute an Analytics query.
@@ -49,9 +50,9 @@ public interface Querys {
      *
      * @param query The Analytics query. Learn more about the [Analytics query syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
      * @throws IllegalArgumentException thrown if parameters fail the validation
-     * @return the observable to the QueryResponse object
+     * @return the observable to the QueryResults object
      */
-    Observable<QueryResponse> getAsync(String query);
+    Observable<QueryResults> getAsync(String query);
 
     /**
      * Execute an Analytics query.
@@ -59,9 +60,9 @@ public interface Querys {
      *
      * @param query The Analytics query. Learn more about the [Analytics query syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
      * @throws IllegalArgumentException thrown if parameters fail the validation
-     * @return the observable to the QueryResponse object
+     * @return the observable to the QueryResults object
      */
-    Observable<ServiceResponse<QueryResponse>> getWithServiceResponseAsync(String query);
+    Observable<ServiceResponse<QueryResults>> getWithServiceResponseAsync(String query);
     /**
      * Execute an Analytics query.
      * Executes an Analytics query for data.
@@ -71,9 +72,9 @@ public interface Querys {
      * @throws IllegalArgumentException thrown if parameters fail the validation
      * @throws ErrorResponseException thrown if the request is rejected by server
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
-     * @return the QueryResponse object if successful.
+     * @return the QueryResults object if successful.
      */
-    QueryResponse get(String query, String timespan);
+    QueryResults get(String query, Period timespan);
 
     /**
      * Execute an Analytics query.
@@ -85,7 +86,7 @@ public interface Querys {
      * @throws IllegalArgumentException thrown if parameters fail the validation
      * @return the {@link ServiceFuture} object
      */
-    ServiceFuture<QueryResponse> getAsync(String query, String timespan, final ServiceCallback<QueryResponse> serviceCallback);
+    ServiceFuture<QueryResults> getAsync(String query, Period timespan, final ServiceCallback<QueryResults> serviceCallback);
 
     /**
      * Execute an Analytics query.
@@ -94,9 +95,9 @@ public interface Querys {
      * @param query The Analytics query. Learn more about the [Analytics query syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
      * @param timespan Optional. The timespan over which to query data. This is an ISO8601 time period value.  This timespan is applied in addition to any that are specified in the query expression.
      * @throws IllegalArgumentException thrown if parameters fail the validation
-     * @return the observable to the QueryResponse object
+     * @return the observable to the QueryResults object
      */
-    Observable<QueryResponse> getAsync(String query, String timespan);
+    Observable<QueryResults> getAsync(String query, Period timespan);
 
     /**
      * Execute an Analytics query.
@@ -105,9 +106,9 @@ public interface Querys {
      * @param query The Analytics query. Learn more about the [Analytics query syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
      * @param timespan Optional. The timespan over which to query data. This is an ISO8601 time period value.  This timespan is applied in addition to any that are specified in the query expression.
      * @throws IllegalArgumentException thrown if parameters fail the validation
-     * @return the observable to the QueryResponse object
+     * @return the observable to the QueryResults object
      */
-    Observable<ServiceResponse<QueryResponse>> getWithServiceResponseAsync(String query, String timespan);
+    Observable<ServiceResponse<QueryResults>> getWithServiceResponseAsync(String query, Period timespan);
 
     /**
      * Execute an Analytics query.
@@ -117,9 +118,9 @@ public interface Querys {
      * @throws IllegalArgumentException thrown if parameters fail the validation
      * @throws ErrorResponseException thrown if the request is rejected by server
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
-     * @return the QueryResponse object if successful.
+     * @return the QueryResults object if successful.
      */
-    QueryResponse post(QueryBody body);
+    QueryResults post(QueryBody body);
 
     /**
      * Execute an Analytics query.
@@ -130,7 +131,7 @@ public interface Querys {
      * @throws IllegalArgumentException thrown if parameters fail the validation
      * @return the {@link ServiceFuture} object
      */
-    ServiceFuture<QueryResponse> postAsync(QueryBody body, final ServiceCallback<QueryResponse> serviceCallback);
+    ServiceFuture<QueryResults> postAsync(QueryBody body, final ServiceCallback<QueryResults> serviceCallback);
 
     /**
      * Execute an Analytics query.
@@ -138,9 +139,9 @@ public interface Querys {
      *
      * @param body The Analytics query. Learn more about the [Analytics query syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
      * @throws IllegalArgumentException thrown if parameters fail the validation
-     * @return the observable to the QueryResponse object
+     * @return the observable to the QueryResults object
      */
-    Observable<QueryResponse> postAsync(QueryBody body);
+    Observable<QueryResults> postAsync(QueryBody body);
 
     /**
      * Execute an Analytics query.
@@ -148,54 +149,8 @@ public interface Querys {
      *
      * @param body The Analytics query. Learn more about the [Analytics query syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
      * @throws IllegalArgumentException thrown if parameters fail the validation
-     * @return the observable to the QueryResponse object
+     * @return the observable to the QueryResults object
      */
-    Observable<ServiceResponse<QueryResponse>> postWithServiceResponseAsync(QueryBody body);
-    /**
-     * Execute an Analytics query.
-     * Executes an Analytics query for data. [Here](/documentation/2-Using-the-API/Query) is an example for using POST with an Analytics query.
-     *
-     * @param body The Analytics query. Learn more about the [Analytics query syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
-     * @param timespan Optional. The timespan over which to query data. This is an ISO8601 time period value.  This timespan is applied in addition to any that are specified in the query expression.
-     * @throws IllegalArgumentException thrown if parameters fail the validation
-     * @throws ErrorResponseException thrown if the request is rejected by server
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent
-     * @return the QueryResponse object if successful.
-     */
-    QueryResponse post(QueryBody body, String timespan);
-
-    /**
-     * Execute an Analytics query.
-     * Executes an Analytics query for data. [Here](/documentation/2-Using-the-API/Query) is an example for using POST with an Analytics query.
-     *
-     * @param body The Analytics query. Learn more about the [Analytics query syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
-     * @param timespan Optional. The timespan over which to query data. This is an ISO8601 time period value.  This timespan is applied in addition to any that are specified in the query expression.
-     * @param serviceCallback the async ServiceCallback to handle successful and failed responses.
-     * @throws IllegalArgumentException thrown if parameters fail the validation
-     * @return the {@link ServiceFuture} object
-     */
-    ServiceFuture<QueryResponse> postAsync(QueryBody body, String timespan, final ServiceCallback<QueryResponse> serviceCallback);
-
-    /**
-     * Execute an Analytics query.
-     * Executes an Analytics query for data. [Here](/documentation/2-Using-the-API/Query) is an example for using POST with an Analytics query.
-     *
-     * @param body The Analytics query. Learn more about the [Analytics query syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
-     * @param timespan Optional. The timespan over which to query data. This is an ISO8601 time period value.  This timespan is applied in addition to any that are specified in the query expression.
-     * @throws IllegalArgumentException thrown if parameters fail the validation
-     * @return the observable to the QueryResponse object
-     */
-    Observable<QueryResponse> postAsync(QueryBody body, String timespan);
-
-    /**
-     * Execute an Analytics query.
-     * Executes an Analytics query for data. [Here](/documentation/2-Using-the-API/Query) is an example for using POST with an Analytics query.
-     *
-     * @param body The Analytics query. Learn more about the [Analytics query syntax](https://azure.microsoft.com/documentation/articles/app-insights-analytics-reference/)
-     * @param timespan Optional. The timespan over which to query data. This is an ISO8601 time period value.  This timespan is applied in addition to any that are specified in the query expression.
-     * @throws IllegalArgumentException thrown if parameters fail the validation
-     * @return the observable to the QueryResponse object
-     */
-    Observable<ServiceResponse<QueryResponse>> postWithServiceResponseAsync(QueryBody body, String timespan);
+    Observable<ServiceResponse<QueryResults>> postWithServiceResponseAsync(QueryBody body);
 
 }

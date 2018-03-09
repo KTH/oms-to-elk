@@ -6,6 +6,7 @@
 
 package se.kth.integral.oms.models;
 
+import org.joda.time.Period;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -26,10 +27,10 @@ public class QueryBody {
      * specified in the query expression.
      */
     @JsonProperty(value = "timespan")
-    private String timespan;
+    private Period timespan;
 
     /**
-     * something about cross workspace queries.
+     * A list of workspaces that are included in the query.
      */
     @JsonProperty(value = "workspaces")
     private List<String> workspaces;
@@ -59,7 +60,7 @@ public class QueryBody {
      *
      * @return the timespan value
      */
-    public String timespan() {
+    public Period timespan() {
         return this.timespan;
     }
 
@@ -69,7 +70,7 @@ public class QueryBody {
      * @param timespan the timespan value to set
      * @return the QueryBody object itself.
      */
-    public QueryBody withTimespan(String timespan) {
+    public QueryBody withTimespan(Period timespan) {
         this.timespan = timespan;
         return this;
     }

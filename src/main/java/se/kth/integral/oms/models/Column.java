@@ -9,9 +9,10 @@ package se.kth.integral.oms.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * The TableObjectColumnsItem model.
+ * A table column.
+ * A column in a table.
  */
-public class TableObjectColumnsItem {
+public class Column {
     /**
      * The name of this column.
      */
@@ -37,9 +38,9 @@ public class TableObjectColumnsItem {
      * Set the name value.
      *
      * @param name the name value to set
-     * @return the TableObjectColumnsItem object itself.
+     * @return the Column object itself.
      */
-    public TableObjectColumnsItem withName(String name) {
+    public Column withName(String name) {
         this.name = name;
         return this;
     }
@@ -57,9 +58,9 @@ public class TableObjectColumnsItem {
      * Set the type value.
      *
      * @param type the type value to set
-     * @return the TableObjectColumnsItem object itself.
+     * @return the Column object itself.
      */
-    public TableObjectColumnsItem withType(String type) {
+    public Column withType(String type) {
         this.type = type;
         return this;
     }

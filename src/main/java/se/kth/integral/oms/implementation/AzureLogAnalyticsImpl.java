@@ -6,7 +6,7 @@
 
 package se.kth.integral.oms.implementation;
 
-import se.kth.integral.oms.AzureLogAnalyticspublicAPI;
+import se.kth.integral.oms.AzureLogAnalytics;
 import se.kth.integral.oms.Querys;
 import com.microsoft.rest.ServiceClient;
 import com.microsoft.rest.RestClient;
@@ -14,9 +14,9 @@ import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 
 /**
- * Initializes a new instance of the AzureLogAnalyticspublicAPI class.
+ * Initializes a new instance of the AzureLogAnalytics class.
  */
-public class AzureLogAnalyticspublicAPIImpl extends ServiceClient implements AzureLogAnalyticspublicAPI {
+public class AzureLogAnalyticsImpl extends ServiceClient implements AzureLogAnalytics {
 
     /** ID of the workspace. This is Workspace ID from the Properties blade in the Azure portal. */
     private String workspaceId;
@@ -36,7 +36,7 @@ public class AzureLogAnalyticspublicAPIImpl extends ServiceClient implements Azu
      * @param workspaceId the workspaceId value.
      * @return the service client itself
      */
-    public AzureLogAnalyticspublicAPIImpl withWorkspaceId(String workspaceId) {
+    public AzureLogAnalyticsImpl withWorkspaceId(String workspaceId) {
         this.workspaceId = workspaceId;
         return this;
     }
@@ -55,51 +55,51 @@ public class AzureLogAnalyticspublicAPIImpl extends ServiceClient implements Azu
     }
 
     /**
-     * Initializes an instance of AzureLogAnalyticspublicAPI client.
+     * Initializes an instance of AzureLogAnalytics client.
      */
-    public AzureLogAnalyticspublicAPIImpl() {
+    public AzureLogAnalyticsImpl() {
         this("https://api.loganalytics.io/v1");
     }
 
     /**
-     * Initializes an instance of AzureLogAnalyticspublicAPI client.
+     * Initializes an instance of AzureLogAnalytics client.
      *
      * @param baseUrl the base URL of the host
      */
-    public AzureLogAnalyticspublicAPIImpl(String baseUrl) {
+    public AzureLogAnalyticsImpl(String baseUrl) {
         super(baseUrl);
         initialize();
     }
 
     /**
-     * Initializes an instance of AzureLogAnalyticspublicAPI client.
+     * Initializes an instance of AzureLogAnalytics client.
      *
      * @param clientBuilder the builder for building an OkHttp client, bundled with user configurations
      * @param restBuilder the builder for building an Retrofit client, bundled with user configurations
      */
-    public AzureLogAnalyticspublicAPIImpl(OkHttpClient.Builder clientBuilder, Retrofit.Builder restBuilder) {
+    public AzureLogAnalyticsImpl(OkHttpClient.Builder clientBuilder, Retrofit.Builder restBuilder) {
         this("https://api.loganalytics.io/v1", clientBuilder, restBuilder);
         initialize();
     }
 
     /**
-     * Initializes an instance of AzureLogAnalyticspublicAPI client.
+     * Initializes an instance of AzureLogAnalytics client.
      *
      * @param baseUrl the base URL of the host
      * @param clientBuilder the builder for building an OkHttp client, bundled with user configurations
      * @param restBuilder the builder for building an Retrofit client, bundled with user configurations
      */
-    public AzureLogAnalyticspublicAPIImpl(String baseUrl, OkHttpClient.Builder clientBuilder, Retrofit.Builder restBuilder) {
+    public AzureLogAnalyticsImpl(String baseUrl, OkHttpClient.Builder clientBuilder, Retrofit.Builder restBuilder) {
         super(baseUrl, clientBuilder, restBuilder);
         initialize();
     }
 
     /**
-     * Initializes an instance of AzureLogAnalyticspublicAPI client.
+     * Initializes an instance of AzureLogAnalytics client.
      *
      * @param restClient the REST client containing pre-configured settings
      */
-    public AzureLogAnalyticspublicAPIImpl(RestClient restClient) {
+    public AzureLogAnalyticsImpl(RestClient restClient) {
         super(restClient);
         initialize();
     }

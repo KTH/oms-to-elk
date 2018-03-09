@@ -16,8 +16,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import se.kth.integral.oms.Querys;
-import se.kth.integral.oms.models.QueryResponse;
-import se.kth.integral.oms.models.TableObject;
+import se.kth.integral.oms.models.QueryResults;
+import se.kth.integral.oms.models.Table;
 
 public class LogRetriever implements Runnable {
     private static final int LOOK_BEHIND_FOR_LATE_INDEX_TIME = 10000;
@@ -41,7 +41,7 @@ public class LogRetriever implements Runnable {
         this.queue = queue;
 
         GsonBuilder builder = new GsonBuilder();
-        builder.registerTypeAdapter(TableObject.class, new TableObjectJsonAdapter());
+        builder.registerTypeAdapter(Table.class, new TableObjectJsonAdapter());
         this.gson = builder.create();
     }
 
@@ -65,7 +65,7 @@ public class LogRetriever implements Runnable {
             } catch (InterruptedException e) {}
  
             try {
-                QueryResponse searchResults = querys.get(
+                QueryResults searchResults = querys.get(
                         String.format("%s | where TimeGenerated >= %s and TimeGenerated <= %s | limit %s | order by TimeGenereted asc",
                                 query,
                                 lastTimestamp.minusMillis(lookBehind),
@@ -91,7 +91,7 @@ public class LogRetriever implements Runnable {
                 // before walking through results and discover otherwise.
                 backoff = BACKOFF_SLEEP_TIME;
 
-                final TableObject res = searchResults.tables().get(0);
+                final Table res = searchResults.tables().get(0);
                 final JsonArray elements = gson.toJsonTree(res).getAsJsonArray();
 
                 for (final JsonElement element : elements) {

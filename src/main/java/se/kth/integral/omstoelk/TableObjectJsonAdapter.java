@@ -9,15 +9,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import se.kth.integral.oms.models.TableObject;
-import se.kth.integral.oms.models.TableObjectColumnsItem;
+import se.kth.integral.oms.models.Column;
+import se.kth.integral.oms.models.Table;
 
-public class TableObjectJsonAdapter implements JsonSerializer<TableObject> {
-    public JsonElement serialize(TableObject src, Type typeOfSrc, JsonSerializationContext context) {
+public class TableObjectJsonAdapter implements JsonSerializer<Table> {
+    public JsonElement serialize(Table src, Type typeOfSrc, JsonSerializationContext context) {
         final JsonArray res = new JsonArray();
 
         for (List<String> row : src.rows()) {
-            final List<TableObjectColumnsItem> columns = src.columns();
+            final List<Column> columns = src.columns();
             final JsonObject json = new JsonObject();
 
             for (int i = 0; i < row.size(); i++) {

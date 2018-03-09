@@ -3,7 +3,7 @@
 // regenerated.
 
 /**
- * This package contains the implementation classes for AzureLogAnalyticspublicAPI.
+ * This package contains the implementation classes for AzureLogAnalytics.
  * This API exposes Azure Log Analytics query capabilities.
  */
 package se.kth.integral.oms.implementation;
