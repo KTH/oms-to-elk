@@ -21,7 +21,8 @@ RUN apk --no-cache add bash
 ENV LOGSTASH_SERVER=localhost
 ENV LOGSTASH_PORT=5000
 ENV LOGSTASH_KEYSTORE=oms-to-elk.keystore
-ENV OMS_ELK_SAVED_QUERY=oms-to-elk|Default
+ENV OMS_ELK_QUERY=*
+ENV OMS_ELK_START_DATE=NOW
 
 ADD oms-to-elk-*.jar /opt/oms-to-elk/application.jar
 ADD run.sh /opt/oms-to-elk/run.sh

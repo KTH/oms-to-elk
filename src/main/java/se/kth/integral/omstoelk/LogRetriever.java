@@ -3,45 +3,46 @@ package se.kth.integral.omstoelk;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.Queue;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
-import se.kth.integral.azure.opinsights.Workspaces;
-import se.kth.integral.azure.opinsights.models.SearchParameters;
-import se.kth.integral.azure.opinsights.models.SearchResultsResponse;
+import se.kth.integral.oms.Querys;
+import se.kth.integral.oms.models.QueryResults;
+import se.kth.integral.oms.models.Table;
 
 public class LogRetriever implements Runnable {
     private static final int LOOK_BEHIND_FOR_LATE_INDEX_TIME = 10000;
     private static final int BACKOFF_SLEEP_TIME = 10000;
-    private static final long BATCH_SIZE = 100;
-    private static final Logger LOG = LoggerFactory.getLogger(QueryRetriever.class);
-    private static final ObjectMapper OM = new ObjectMapper();
-    private static final FifoCache<String, JsonNode> cache = new FifoCache<String, JsonNode>(10000);
+    private static final long BATCH_SIZE = 1000;
 
+    private static final Logger LOG = LoggerFactory.getLogger(LogRetriever.class);
+    private static final FifoCache<String, Object> cache = new FifoCache<String, Object>(10000);
 
-    private final QueryRetriever queryRetriever;
-    private final Workspaces workspaces;
-    private final String resourceGroup;
-    private final String workspace;
-    private Queue<JsonNode> queue;
+    private final String query;
+    private final Queue<JsonObject> queue;
+    private final Querys querys;
+    private final Gson gson;
 
     public LogRetriever(
-            final Workspaces workspaces,
-            final String resourceGroup, 
-            final String workspace,
-            final QueryRetriever queryRetriever,
-            final Queue<JsonNode> queue) {
-        this.queryRetriever = queryRetriever;
-        this.workspaces = workspaces;
-        this.resourceGroup = resourceGroup;
-        this.workspace = workspace;
+            final Querys querys,
+            final String query,
+            final Queue<JsonObject> queue) {
+        this.querys = querys;
+        this.query = query;
         this.queue = queue;
+
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(Table.class, new TableObjectJsonAdapter());
+        this.gson = builder.create();
     }
 
     @Override
@@ -49,11 +50,11 @@ public class LogRetriever implements Runnable {
         int backoff = 0;
         int lookBehind = LOOK_BEHIND_FOR_LATE_INDEX_TIME;
 
-        DateTime lastTimestamp;
+        Instant lastTimestamp;
         try {
-            lastTimestamp = DateTime.parse(new String(Files.readAllBytes(Paths.get("timestamp"))));
+            lastTimestamp = Instant.parse(new String(Files.readAllBytes(Paths.get("timestamp"))));
         } catch (IOException e) {
-            lastTimestamp = DateTime.now();
+            lastTimestamp = Instant.now();
         }
 
         LOG.info("Start retrieving log entries from {}", lastTimestamp);
@@ -63,24 +64,24 @@ public class LogRetriever implements Runnable {
                 Thread.sleep(backoff);
             } catch (InterruptedException e) {}
  
-            if (queryRetriever.getSavedSearch() == null) {
-                backoff = BACKOFF_SLEEP_TIME;
-                continue;
-            }
-
             try {
-                DateTime now = DateTime.now();
-                SearchParameters parameters = new SearchParameters()
-                        .withTop(BATCH_SIZE)
-                        .withStart(lastTimestamp.minusMillis(lookBehind))
-                        .withEnd(now)
-                        .withQuery(queryRetriever.getSavedSearch().query());
-                SearchResultsResponse searchResults = 
-                        workspaces.beginGetSearchResults(resourceGroup, workspace, parameters);
+                QueryResults searchResults = querys.get(
+                        String.format("%s | where TimeGenerated >= %s and TimeGenerated <= %s | limit %s | order by TimeGenereted asc",
+                                query,
+                                lastTimestamp.minusMillis(lookBehind),
+                                Instant.now(),
+                                BATCH_SIZE));
+//                SearchParameters parameters = new SearchParameters()
+//                        .withTop(BATCH_SIZE)
+//                        .withStart())
+//                        .withEnd(now)
+//                        .withQuery(query);
+//                SearchResultsResponse searchResults = 
+//                        workspaces.beginGetSearchResults(resourceGroup, workspace, parameters);
 
                 // Wind back a period of time at end of results to increase 
                 // chance of catching items indexed out of order.
-                if (searchResults.value().size() < BATCH_SIZE) {
+                if (searchResults.tables().size() < BATCH_SIZE) {
                     lookBehind = LOOK_BEHIND_FOR_LATE_INDEX_TIME;
                 } else {
                     lookBehind = 0;
@@ -90,19 +91,14 @@ public class LogRetriever implements Runnable {
                 // before walking through results and discover otherwise.
                 backoff = BACKOFF_SLEEP_TIME;
 
-                for (Object res : searchResults.value()) {
-                    JsonNode json = OM.convertValue(res, JsonNode.class);
-                    String timestampStr = json.get("TimeGenerated").asText();
-                    lastTimestamp = DateTime.parse(timestampStr);
+                final Table res = searchResults.tables().get(0);
+                final JsonArray elements = gson.toJsonTree(res).getAsJsonArray();
 
-                    // Using the id does not work when the workspace is converted. Ids seem
-                    // to be generated dynamically and will change between searches.
-                    // String id = json.get("id").asText();
-                    //
-                    // We now use the timestamp instead, but that means that two log entries
-                    // with the same millisecond level timestamp will collide and one of 
-                    // them be lost. Likelihood for our purposes is low.
-                    String id = timestampStr;
+                for (final JsonElement element : elements) {
+                    JsonObject json = element.getAsJsonObject();
+                    String id = json.toString();
+
+                    lastTimestamp = Instant.parse(json.get("TimeGenerated").getAsString());
 
                     if (!cache.containsKey(id)) {
                         cache.put(id, null);
