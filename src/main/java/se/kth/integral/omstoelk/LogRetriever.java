@@ -19,11 +19,10 @@ import se.kth.integral.azure.opinsights.models.SearchResultsResponse;
 public class LogRetriever implements Runnable {
     private static final int LOOK_BEHIND_FOR_LATE_INDEX_TIME = 10000;
     private static final int BACKOFF_SLEEP_TIME = 10000;
-    private static final long BATCH_SIZE = 100;
+    private static final long BATCH_SIZE = 1000;
     private static final Logger LOG = LoggerFactory.getLogger(QueryRetriever.class);
     private static final ObjectMapper OM = new ObjectMapper();
     private static final FifoCache<String, JsonNode> cache = new FifoCache<String, JsonNode>(10000);
-
 
     private final QueryRetriever queryRetriever;
     private final Workspaces workspaces;
